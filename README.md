@@ -1,6 +1,6 @@
 # CSD2c_Eindopdracht
 
-#(Jens Loeven && Roel Vugts)
+(Jens Loeven && Roel Vugts)
 
 # Concept
 # Wat kun je ermee
