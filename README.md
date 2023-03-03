@@ -1,6 +1,6 @@
 # CSD2c_Eindopdracht
 
-'(Jens Loeven && Roel Vugts)'
+    `(Jens Loeven && Roel Vugts)`
 
 ## Concept
 ### Wat kun je ermee
@@ -13,9 +13,9 @@ De audio input wordt gesynthetiseerd en de klank kan middels effecten door de ge
 #### Aansturing
 2 joysticks en 2 touchpads (Bela trill square) <br>
 * Joystick 1 -> Panning van geluid met Doppler effect <br>
-* Joystick 2  Decorrelatie van geluid <br>
-* Touchpad 1  Effect 1 <br>
-* Touchpad 2  Effect 2 <br>
+* Joystick 2 -> Decorrelatie van geluid <br>
+* Touchpad 1 -> Effect 1 <br>
+* Touchpad 2 -> Effect 2 <br>
 De joysticks en touchpad worden uitgelezen via een Bela waar ook de effecten op staan en geluid uitstuurt.
 
 ### Waarom en voor wie is het gemaakt
