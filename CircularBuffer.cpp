@@ -12,20 +12,19 @@
 template<class dataType, class headType>
 CircBuffer<dataType, headType>::CircBuffer(uint size) : buffer (new dataType[size]), currentSize (size), newBuffer(nullptr)
 { 
-    //initialize write- and readHeader wrap values to buffer size
-    writeMax = size; 
+    //initialize writeHeaderto buffer size
     readMax = size;
 
+    //initialize all samples to 0
     for (uint i = 0; i < size; i++)
         buffer[i] = 0.0;
-
 }
 
 //Destructor
 template<class dataType, class headType>
 CircBuffer<dataType, headType>::~CircBuffer()
 {
-    delete[] buffer; 
+    deleteBuffer();
 }
 
 
@@ -33,59 +32,20 @@ CircBuffer<dataType, headType>::~CircBuffer()
 template<class dataType, class headType>
 void CircBuffer<dataType, headType>::setSize(uint size)
 {
-    //----------------------------------------------------------------
-    //when new size equals old size
+    newBuffer = new dataType[size];
+
     if (size == currentSize)
-        return; //exit function
-    
-    //----------------------------------------------------------------
-    //when new size is bigger than old size
-    newBuffer = new dataType[size]; //create new buffer
-    
-    if (size > currentSize)
+        return; //exit function if size is not changed
+    else
     {
-        std::copy(buffer, buffer+currentSize, newBuffer); //copy contents of old buf to new buf
+        if (size < currentSize)
+            std::copy(buffer, buffer+size, newBuffer); //copy contents of old buf to new buf
+        else
+            std::copy(buffer, buffer+currentSize, newBuffer);
+
         delete[] buffer; //delete old buf
         buffer = newBuffer; //set new buffer to the buffer we will be using
-        currentSize = size; //adjust size 
-        writeMax = size; //set wrap value for write header to new buffer size
-    }
-
-    //----------------------------------------------------------------
-    //when new size is smaller than new size
-    if (size < currentSize)
-    {
-        if (distance > size)
-        {
-            setDistance(size, false); //decrease delay time when new bufferSize is smaller than the current delay time
-        }
-
-        if ((writeHead > size && readHead < size) || (writeHead > size && readHead > size))
-        {
-            std::copy(buffer, buffer+size, newBuffer);
-            readMax = writeHead;
-            writeHead = 0; //set writeHead to begin of buffer 
-            writeMax = size;
-            waitingForResize = true; //if true, we wait with resizing until the writeHead is in front of the readHead
-            newSize = size;
-        } 
-        else if (readHead > size && writeHead < size)
-        {
-            std::copy(buffer, buffer+size, newBuffer);
-            waitingForResize = true;
-            writeMax = size;
-            newSize = size;
-        } 
-        else if (readHead < size && writeHead < size)
-        {
-            std::copy(buffer, buffer+size, newBuffer);
-            writeMax = size;
-            readMax = size;
-            delete[] buffer;
-            buffer = newBuffer;
-            currentSize = size;
-            newSize = size;
-        }
+        currentSize = size;
     }
 }
 
@@ -114,6 +74,10 @@ dataType CircBuffer<dataType, headType>::readSample(headType delay)
     //limit delay to bufferSize
     if (delay > currentSize)
         delay = currentSize;
+    
+    //set delayStarted to true when the writePos has written the samples
+    if (writeHead > delay)
+        delayStarted = true;
 
     //return 0 if the buffer at index writeHead - delay is not filled yet
     if (!delayStarted)
@@ -121,9 +85,9 @@ dataType CircBuffer<dataType, headType>::readSample(headType delay)
     else 
     {
         if (delay > writeHead)
-            delay = currentSize - delay + writeHead;
+            delay = readMax - delay + writeHead; //wrap readPos
         else 
-            delay = writeHead - delay; 
+            delay = writeHead - delay;
         
         //check if the readIndex is an int or uint
         if (std::is_same<headType, int>::value || std::is_same<headType, uint>::value)
@@ -141,44 +105,13 @@ dataType CircBuffer<dataType, headType>::readSample(headType delay)
     } 
 }
 
-//Increments the heads 1 position further
-template<class dataType, class headType>
-void CircBuffer<dataType, headType>::incrementHeads() 
-{
-    incrementWrite();
-}
-
 template<class dataType, class headType>
 uint CircBuffer<dataType, headType>::getWritePosition() const
 {
     return writeHead;
 }
 
-template<class dataType, class headType>
-inline void CircBuffer<dataType, headType>::wrapWriteHeader(uint& head)
-{
-    if (head >= writeMax)
-        head -= writeMax;
-}
-
-template<class dataType, class headType>
-inline void CircBuffer<dataType, headType>::incrementWrite() 
-{
-    writeHead++;
-    wrapWriteHeader(writeHead);
-
-    if (writeHead > distance)
-        delayStarted = true; //start reading after distance (delay) had been reached
-}
-
-template<class dataType, class headType>
-void CircBuffer<dataType, headType>::deleteBuffer() 
-{
-        delete[] buffer;
-}
-
-/*wraps the readPos
-*/
+//wraps the readPos
 template<class dataType, class headType>
 inline int CircBuffer<dataType, headType>::readBuffer(headType head)
 {
@@ -186,3 +119,31 @@ inline int CircBuffer<dataType, headType>::readBuffer(headType head)
     head -= readMax;
     return head;
 }
+
+
+template<class dataType, class headType>
+inline void CircBuffer<dataType, headType>::wrapWriteHeader(uint& head)
+{
+    if (head >= currentSize)
+        head -= currentSize;
+}
+
+template<class dataType, class headType>
+void CircBuffer<dataType, headType>::incrementWrite() 
+{
+    writeHead++;
+    wrapWriteHeader(writeHead);
+
+    /*if statement that protects the user from reading positions that have not been written yet
+    when the buffer has been resized (to a larger buffer). This wraps the readPos based on the 
+    old buffer size until the write head has passed the old size*/
+    if (writeHead > readMax)
+        readMax = currentSize;
+}
+
+template<class dataType, class headType>
+inline void CircBuffer<dataType, headType>::deleteBuffer() 
+{
+        delete[] buffer;
+}
+
