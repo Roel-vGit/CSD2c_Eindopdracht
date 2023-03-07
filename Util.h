@@ -28,4 +28,9 @@ namespace Util
         return randomInt;
     }
 
+    inline float gainToDecibels(float gain)
+    {
+        return 20 * log10(gain);
+    }
+
 }// Util

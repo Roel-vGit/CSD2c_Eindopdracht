@@ -5,6 +5,7 @@
 #include "sine.h"
 #include "sawtooth.h"
 #include "triangle.h"
+#include "panner.h"
 
 class Callback : public AudioCallback {
     public:
@@ -39,6 +40,15 @@ int main() {
 
     auto callback = Callback {};
     auto jack = JackModule (callback);
+
+    Panner panner(1, 4);
+    panner.setPolarPosition(panner.objects[0], 1.0f, 3.14);
+
+    panner.setPolarPosition(panner.objects[1], 1.0f, 3.10);
+
+    std::cout << "Distance from source: " << panner.getDistance(panner.objects[1], panner.objects[0]) << std::endl;
+
+
 
     jack.init(2,2);
 
