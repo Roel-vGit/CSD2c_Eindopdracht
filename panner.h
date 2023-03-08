@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cmath>
+#include <vector>
 
 /*Class that will do the panning calculations based on the speaker positions
 and hardware input*/
@@ -18,17 +19,14 @@ class Panner {
     public:
         Panner(uint numSpeakers, uint numSources) : numSpeakers(numSpeakers), numSources(numSources)
         {
-            speakers = new Object[numSpeakers];
-            sources = new Object[numSources];
+            for (uint i = 0; i < numSpeakers; i++)
+                speakers.push_back(Object());
+
+            for (uint i = 0; i < numSpeakers; i++)
+                sources.push_back(Object());
         }
 
-        ~Panner() 
-        { 
-            delete[] speakers;
-            std::cout << "Deleted speakers" << std::endl;
-            delete[] sources;
-            std::cout << "Deleted sources" << std::endl;
-        }
+        ~Panner() {}
 
         void setCartesianPosition(Object& object, float xPos, float yPos)
         {
@@ -58,8 +56,8 @@ class Panner {
             return speedBuf;
         }
 
-        Object* speakers;
-        Object* sources;
+        std::vector<Object> speakers;
+        std::vector<Object> sources;
         int numSpeakers;
         int numSources;
         float speedBuf { 0.0f };
@@ -87,9 +85,4 @@ class Panner {
             return radius * sin(angle);
         }
 
-
-
-
-        
 };
-
