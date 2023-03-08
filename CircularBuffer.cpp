@@ -97,7 +97,7 @@ dataType CircBuffer<dataType, headType>::readSample(headType delay)
         else 
         {
             dataType low = buffer[(int)delay];
-            dataType high = buffer[readBuffer((int)delay + 1)];
+            dataType high = buffer[wrapRead((int)delay + 1)];
             headType fraction = delay - (int)delay;
             dataType sample = Util::linearMap(fraction, low, high);
             return sample;
@@ -113,7 +113,7 @@ uint CircBuffer<dataType, headType>::getWritePosition() const
 
 //wraps the readPos
 template<class dataType, class headType>
-inline int CircBuffer<dataType, headType>::readBuffer(headType head)
+inline int CircBuffer<dataType, headType>::wrapRead(headType head)
 {
     if (head >= readMax)
     head -= readMax;

@@ -42,13 +42,10 @@ int main() {
     auto jack = JackModule (callback);
 
     Panner panner(1, 4);
-    panner.setPolarPosition(panner.objects[0], 1.0f, 3.14);
-
-    panner.setPolarPosition(panner.objects[1], 1.0f, 3.10);
-
-    std::cout << "Distance from source: " << panner.getDistance(panner.objects[1], panner.objects[0]) << std::endl;
-
-
+    auto [speakers, sources, numSpeakers, numSources, speedBuf] = panner;
+    panner.setPolarPosition(speakers[0], 1.0f, 3.14);
+    panner.setPolarPosition(sources[0], 1.0f, 3.10);
+    std::cout << "Distance from source: " << panner.getDistance(sources[0], speakers[0]) << std::endl;
 
     jack.init(2,2);
 

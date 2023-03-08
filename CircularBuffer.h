@@ -21,7 +21,7 @@ public:
 
 
 private:
-    inline int readBuffer(headType head);
+    inline int wrapRead(headType head);
     inline void wrapWriteHeader (uint& head);
     inline void deleteBuffer();
 

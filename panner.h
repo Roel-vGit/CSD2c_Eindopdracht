@@ -8,20 +8,27 @@ and hardware input*/
 using uint = unsigned int;
 
 struct Object {
-        float xPos;
-        float yPos;
-        float radius;
-        float angle;
+        float xPos { 0.0f };
+        float yPos { 0.0f };
+        float radius { 0.0f };
+        float angle { 0.0f };
 };
 
 class Panner {
     public:
         Panner(uint numSpeakers, uint numSources) : numSpeakers(numSpeakers), numSources(numSources)
         {
-            objects = new Object[numSpeakers + numSources];
+            speakers = new Object[numSpeakers];
+            sources = new Object[numSources];
         }
 
-        ~Panner() { delete[] objects; }
+        ~Panner() 
+        { 
+            delete[] speakers;
+            std::cout << "Deleted speakers" << std::endl;
+            delete[] sources;
+            std::cout << "Deleted sources" << std::endl;
+        }
 
         void setCartesianPosition(Object& object, float xPos, float yPos)
         {
@@ -40,12 +47,22 @@ class Panner {
             object.yPos = calcY(radius, angle);
         }
 
-        float getDistance(Object source, Object& speaker)
+        float getDistance(Object& source, Object& speaker)
         {
             return calcRadius(speaker.xPos - source.xPos, speaker.yPos - source.yPos);
         }
 
-        Object* objects;
+        float getSpeed(Object& source)
+        {
+            speedBuf = (source.xPos + source.yPos) - speedBuf;
+            return speedBuf;
+        }
+
+        Object* speakers;
+        Object* sources;
+        int numSpeakers;
+        int numSources;
+        float speedBuf { 0.0f };
 
         
     private:
@@ -70,8 +87,7 @@ class Panner {
             return radius * sin(angle);
         }
 
-        int numSpeakers;
-        int numSources;
+
 
 
         
