@@ -6,6 +6,7 @@
 #include "sawtooth.h"
 #include "triangle.h"
 #include "panner.h"
+#include <array>
 
 class Callback : public AudioCallback {
     public:
@@ -22,7 +23,7 @@ class Callback : public AudioCallback {
                 for (int sample = 0u; sample < numFrames; ++sample)
                 {
                     sines[channel].tick();
-                    delays[channel].process(inputChannels[channel][sample], outputChannels[channel][sample]);
+//                    delays[channel].process(inputChannels[channel][sample], outputChannels[channel][sample]);
                     outputChannels[channel][sample] = sines[channel].getSample();
                 }
             }
@@ -46,9 +47,9 @@ int main() {
     panner.setPolarPosition(Panner::SoundSource::Speaker, 1.0f, 135, true);
     panner.setPolarPosition(Panner::SoundSource::Speaker, 1, 1.0f, 45, true);
     panner.setPolarPosition(Panner::SoundSource::Source, 0, 1.0f, 45, true);
-    std::cout << "Distance from source: " << panner.getDistance(panner.sources[0], panner.speakers[0]) << std::endl;
+//    std::cout << "Distance from surce: " << panner.getDistance(panner.sources[0], panner.speakers[0]) << std::endl;
 
-    jack.init(2,2);
+    jack.init(1,2);
 
     bool running = true;
 
