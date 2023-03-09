@@ -21,18 +21,19 @@ class Callback : public AudioCallback {
             for (int channel = 0u; channel < numOutputChannels; ++channel) {  
                 for (int sample = 0u; sample < numFrames; ++sample)
                 {
-                    // sines[channel].tick();
+                    sines[channel].tick();
                     delays[channel].process(inputChannels[channel][sample], outputChannels[channel][sample]);
-                    // outputChannels[channel][sample] = sines[channel].getSample();
+                    outputChannels[channel][sample] = sines[channel].getSample();
                 }
             }
         }
 
-    private:
     std::array<Delay, 2> delays { Delay(), Delay() };
     std::array<Sine, 2> sines { Sine(400, 0.8f), Sine(400, 0.8f) };
 
 };
+
+
 
 
 
@@ -41,9 +42,10 @@ int main() {
     auto callback = Callback {};
     auto jack = JackModule (callback);
 
-    Panner panner(1, 4);
-    panner.setPolarPosition(panner.speakers[0], 1.0f, 3.14);
-    panner.setPolarPosition(panner.sources[0], 1.0f, 3.10);
+    Panner panner(4, 1);
+    panner.setPolarPosition(Panner::SoundSource::Speaker, 1.0f, 135, true);
+    panner.setPolarPosition(Panner::SoundSource::Speaker, 1, 1.0f, 45, true);
+    panner.setPolarPosition(Panner::SoundSource::Source, 0, 1.0f, 45, true);
     std::cout << "Distance from source: " << panner.getDistance(panner.sources[0], panner.speakers[0]) << std::endl;
 
     jack.init(2,2);
@@ -53,8 +55,18 @@ int main() {
     while (running) {
         switch (std::cin.get()) {
             case 'q':
-            running = false;
-            break;
+                running = false;
+                break;
+            // case 'd':
+            //     float distance, angle;
+            //     std::cout << "Enter distance: " << std::endl;
+            //     std::cin >> distance;
+            //     std::cout << "Enter angle: " << std::endl;
+            //     std::cin >> angle;
+            //     panner.setPolarPosition(panner.sources[0], distance, angle);
+            //     callback.sines[0].setAmplitude(panner.getDistance(panner.sources[0], panner.speakers[0]));
+            //     callback.sines[1].setAmplitude(panner.getDistance(panner.sources[0], panner.speakers[1]));
+            //     continue;
         }
     }
 
