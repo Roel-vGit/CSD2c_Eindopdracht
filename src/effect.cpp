@@ -2,7 +2,7 @@
 // Created by Jens on 14/02/2023.
 //
 
-#include "effect.h"
+#include "../include/effect.h"
 
 Effect::Effect() {
 }
