@@ -14,7 +14,7 @@ public:
 	void process(const float& input, float& output);
 
 //	Prepare function to load the sampleRate.
-	virtual void prepareToPlay (float sampleRate);
+	virtual void prepareToPlay (int sampleRate);
 
 //	calculate the effect (needs to be overridden).
 	virtual void calculate(const float& input, float& output) = 0;

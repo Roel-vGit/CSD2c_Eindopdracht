@@ -1,7 +1,7 @@
 CXX= g++
-CXXFLAGS = -I/usr/local/include -Wall -std=c++1z -g
+CXXFLAGS = -I/usr/local/include -Wall -g -std=c++1z -g
 LDFLAGS= -ljack
-SOURCE= main.o effect.o
+SOURCE= main.o effect.o CircularBuffer.o oscillator.o
 TARGET= app
 
 $(TARGET) : $(SOURCE)

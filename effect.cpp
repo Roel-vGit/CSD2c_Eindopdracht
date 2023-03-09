@@ -10,7 +10,7 @@ Effect::~Effect() {
 }
 
 // Loading the sample rate.
-void Effect::prepareToPlay(float sampleRate) { this->sampleRate = sampleRate; }
+void Effect::prepareToPlay(int sampleRate) { this->sampleRate = sampleRate; }
 
 // Using constant float because you never want to change the input.
 void Effect::process(const float& input, float& output) {
