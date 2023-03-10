@@ -29,7 +29,7 @@
     {
         circBuf.writeSample(input + feedback * circBuf.readSample(delayTime));
         circBuf.incrementWrite();
-        output = (1.0f - dryWet)*input + (dryWet * circBuf.readSample(delayTime));
+        output = circBuf.readSample(delayTime);
     }
 
     /*sets the delay time

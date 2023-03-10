@@ -40,7 +40,6 @@ class Panner {
         Also constructs one source which is front centered*/
         Panner(uint numSpeakers, uint numSources);
 
-
         //Destructor
         ~Panner();
 
