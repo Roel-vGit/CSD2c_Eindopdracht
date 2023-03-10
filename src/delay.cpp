@@ -7,6 +7,14 @@
 
     }
 
+    //constructor with initializer list
+    Delay::Delay(float maxDelay, float delayTime, float feedback)
+    {
+        setMaxDelay(maxDelay);
+        setDelayTime(delayTime);
+        setFeedback(feedback);
+    }
+
     //Destrcutor
     Delay::~Delay() 
     {
@@ -45,9 +53,9 @@
     }
 
     //sets the buffer size (max delay)
-    void Delay::setMaxDelay(int maxDelay)
+    void Delay::setMaxDelay(float maxDelay)
     {
-        circBuf.setSize(Util::msToSamples(maxDelay, sampleRate));
+        circBuf.setSize((int)Util::msToSamples(maxDelay, sampleRate));
     }
 
     //returns the current delay time

@@ -9,6 +9,8 @@ public:
     //constructor
     Delay();
 
+    Delay(float maxDelay, float delayTime, float feedback = 0.0f);
+
     //Destrcutor
     ~Delay();
 
@@ -28,7 +30,7 @@ public:
     void setDelayTime(float delay, bool samples = false);
 
     //sets the buffer size (max delay)
-    void setMaxDelay(int maxDelay);
+    void setMaxDelay(float maxDelay);
 
     //returns the current delay time
     double getDelayTime() const;

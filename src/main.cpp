@@ -6,13 +6,18 @@
 #include "../include/sawtooth.h"
 #include "../include/triangle.h"
 #include "../include/panner.h"
+#include "../include/chorus.h"
 
 class Callback : public AudioCallback {
     public:
         void prepare(int sampleRate) override
         {
-            
+            for (int i = 0; i < 2; i++)
+            {
+                chorus[i].prepareToPlay(sampleRate);
+                chorus[i].setDryWet(0.5f);           }
         }
+           
 
         void process(AudioBuffer buffer) override
         {
@@ -21,12 +26,14 @@ class Callback : public AudioCallback {
                 for (int sample = 0u; sample < numFrames; ++sample)
                 {
                     sines[channel].tick();
-                    outputChannels[channel][sample] = sines[channel].getSample();
+                    chorus[channel].process(inputChannels[channel][sample], outputChannels[channel][sample]);
                 }
             }
         }
 
-    std::array<Sine, 2> sines { Sine(400, 0.8f), Sine(400, 0.8f) };
+    std::array<Sine, 2> sines { Sine(400, 0.5f), Sine(400, 0.5f) };
+    std::array<Chorus, 2> chorus { Chorus(0.35f, 1.0f, 10), Chorus(0.4f, 1.2f, 15, 0.5f) } ;
+    std::array<Delay, 2> delays { Delay(), Delay() };
 
 };
 
