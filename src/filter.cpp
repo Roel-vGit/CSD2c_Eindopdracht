@@ -13,7 +13,6 @@ void Filter::prepareToPlay(int samplerate)
     filterBuf.setSize(samplerate);
 }
 
-
 void Filter::setCutoff(float cutoff)
 {
     if (cutoff > samplerate/2)

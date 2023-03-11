@@ -14,6 +14,8 @@ class Filter : public Effect {
         //initialize delay buffers
         void prepareToPlay(int samplerate) override;
 
+        /*Sets the cutoff frequency of the lowpass and highpass filters
+        cutoff: cutoff frequency in Hz */
         void setCutoff(float cutoff);
 
     protected:
@@ -45,10 +47,15 @@ class Allpass : public Filter {
     public:
         void calculate(const float& input, float& output) override;
 
+        /*Sets the allpass filter coefficients and delay
+        gain: filter coefficient (value between 0.0f and 1.0f)
+        delay: delay of the allpass filter*/
         void setAllpass(float gain, double delay);
 
+        //returns the delay of the allpass filter
         float getAllpassDelay() const;
 
+        //returns the feedback (coefficient) of the allpass
         float getAllpassFeedback() const;
-
 };
+
