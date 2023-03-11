@@ -6,12 +6,12 @@
 
 class Delay : public Effect {
 public:
-    //constructor
+    //Constructor
     Delay();
 
     Delay(float maxDelay, float delayTime, float feedback = 0.0f);
 
-    //Destrcutor
+    //Destructor
     ~Delay();
 
     //Initialize delay buffer to 2 seconds and delay time to 0 ms (no delay)*/
