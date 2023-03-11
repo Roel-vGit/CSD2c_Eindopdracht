@@ -4,9 +4,9 @@
 
 class Sawtooth : public Oscillator {
     public:
-        Sawtooth();
-        Sawtooth(float frequency, float amplitude);
-        ~Sawtooth();
+        Sawtooth() {};
+        Sawtooth(float frequency, float amplitude) : Oscillator(frequency, amplitude) {};
+        ~Sawtooth() {};
     
     void calculate() 
     {     
