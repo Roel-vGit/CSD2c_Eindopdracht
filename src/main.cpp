@@ -8,6 +8,7 @@
 #include "../include/panner.h"
 #include "../include/chorus.h"
 #include "../include/filter.h"
+#include <array>
 
 class Callback : public AudioCallback {
     public:
@@ -59,7 +60,7 @@ int main() {
     // std::cout << "Speaker 2 position: " << panner.speakers[1].getX() << " " << panner.speakers[1].getY() << std::endl;
     // std::cout << "Speaker 3 position: " << panner.speakers[2].getX() << " " << panner.speakers[2].getY() << std::endl;
     // std::cout << "Speaker 4 position: " << panner.speakers[3].getX() << " " << panner.speakers[3].getY() << std::endl;
-    jack.init(2,2);
+    jack.init(1,2);
 
     bool running = true;
 
