@@ -61,3 +61,20 @@ float Allpass::getAllpassFeedback() const
 {
     return allpassFeedback;
 }
+
+void Decorrelator::prepareToPlay(int sampleRate)
+{
+    this->sampleRate = sampleRate;
+    for (Allpass& filter : filters)
+        filter.prepareToPlay(sampleRate);
+    setCoefficients();
+}
+
+void Decorrelator::calculate(const float& input, float& output)
+{
+    output = input;
+    for (Allpass& filter : filters)
+        filter.calculate(output, output);
+
+
+}

@@ -1,5 +1,6 @@
 #include "effect.h"
 #include "../libs/CircularBuffer.h"
+#include "../libs/Util.h"
 #include <cmath>
 #include <iostream>
 
@@ -56,5 +57,28 @@ class Allpass : public Filter {
 
         //returns the feedback (coefficient) of the allpass
         float getAllpassFeedback() const;
+};
+
+class Decorrelator : public Effect {
+    public:
+
+        //prepares the allpass filters and generates random coefficients
+        void prepareToPlay(int sampleRate) override;
+
+        void calculate(const float& input, float& output) override;
+
+        //generate random coefficients for the allpass filters
+        void setCoefficients()
+        {  
+            for (Allpass& filter : filters)
+            {
+                float gain = Util::random(999) / 1000.0f;
+                float delay = Util::random(sampleRate);
+                filter.setAllpass(gain, delay);
+            }
+        }
+    
+    private:
+        Allpass filters[10];
 };
 

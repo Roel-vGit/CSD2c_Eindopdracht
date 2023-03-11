@@ -20,7 +20,6 @@ class Callback : public AudioCallback {
                 chorus[i].prepareToPlay(sampleRate);
                 chorus[i].setDryWet(0.5f);  
                 allpass[i].prepareToPlay(sampleRate);
-                allpass[i].setAllpass(0.4f*(i+1), 100*(i+1));
                 allpass[i].setDryWet(0.0f);
                 speaker[i].prepareToPlay(sampleRate);
             }
@@ -62,7 +61,7 @@ class Callback : public AudioCallback {
     std::array<Sine, 2> sines { Sine(400, 0.5f), Sine(400, 0.5f) };
     std::array<Sawtooth, 2> saws { Sawtooth(100, 0.5f), Sawtooth(100, 0.5f) };
     std::array<Chorus, 2> chorus { Chorus(0.35f, 1.0f, 10), Chorus(0.4f, 1.2f, 15, 0.5f) } ;
-    std::array<Allpass, 2> allpass { Allpass(), Allpass() };
+    std::array<Decorrelator, 2> allpass { Decorrelator(), Decorrelator() };
     std::array<Delay, 2> delays { Delay(), Delay() };
     std::array<Speaker, 4> speaker { Speaker(), Speaker(), Speaker(), Speaker() };
     Object source { Object() };
@@ -90,7 +89,7 @@ int main() {
                 float dryWet;
                 std::cout << "Enter dry wet: ";
                 std::cin >> dryWet;
-                for (Allpass& allpass : callback.allpass)
+                for (Decorrelator& allpass : callback.allpass)
                 {
                     allpass.setDryWet(dryWet);
                 }
