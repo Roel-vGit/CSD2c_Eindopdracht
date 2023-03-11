@@ -39,10 +39,13 @@ class Callback : public AudioCallback {
                 {
                     //test tone
                     saws[channel].tick();
-                    
+
                     //make the audio source circle
                     source.setPolarPosition(1.0f, angle, true);
                     angle += 0.005;
+                     outputChannels[channel][sample] = sines[channel].getSample();
+//                    allpass[channel].process(saws[channel].getSample(), outputChannels[channel][sample]);
+					waveShapers[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
 
                     //calculate amplitude and delay per speaker based on source position
                     speaker[channel].calcAmplitude(source);
@@ -54,7 +57,7 @@ class Callback : public AudioCallback {
                     
                     //apply panning
                     speaker[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
-                }
+pul                }
             }
         }
 
@@ -66,7 +69,8 @@ class Callback : public AudioCallback {
     std::array<Speaker, 4> speaker { Speaker(), Speaker(), Speaker(), Speaker() };
     Object source { Object() };
     float angle = { 0.0f };
-    std::array<WaveShaper, 2> waveShapers { WaveShaper(1.0f), WaveShaper(1.0f) };
+    std::array<WaveShaper, 2> waveShapers { WaveShaper(4.0f), WaveShaper(4.0f) };
+
 
 };
 
