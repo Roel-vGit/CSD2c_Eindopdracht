@@ -2,6 +2,5 @@
 build/
 CMakeLists.txt
 cmake-build-debug
-.jens/
 .DS_Store
 .idea/
