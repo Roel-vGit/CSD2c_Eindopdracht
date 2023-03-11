@@ -6,7 +6,7 @@
 
 #pragma once
 
-static const float pi = acos(-1);
+static const float pi = 3.14159265359;
 
 namespace Util
 {

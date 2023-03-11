@@ -53,8 +53,12 @@ int main() {
     auto jack = JackModule (callback);
 
     Panner panner(4, 1);
-    std::cout << "Distance from source: " << panner.getDistance(panner.sources[0], panner.speakers[0]) << std::endl;
+    // std::cout << "Distance from source: " << panner.getDistance(panner.sources[0], panner.speakers[0]) << std::endl;
 
+    // std::cout << "Speaker 1 position: " << panner.speakers[0].getX() << " " << panner.speakers[0].getY() << std::endl;
+    // std::cout << "Speaker 2 position: " << panner.speakers[1].getX() << " " << panner.speakers[1].getY() << std::endl;
+    // std::cout << "Speaker 3 position: " << panner.speakers[2].getX() << " " << panner.speakers[2].getY() << std::endl;
+    // std::cout << "Speaker 4 position: " << panner.speakers[3].getX() << " " << panner.speakers[3].getY() << std::endl;
     jack.init(2,2);
 
     bool running = true;
@@ -70,11 +74,11 @@ int main() {
                 std::cin >> distance;
                 std::cout << "Enter angle: " << std::endl;
                 std::cin >> angle;
-                panner.sources[0].setPolarPosition(distance, angle);
-                callback.sines[0].setAmplitude(panner.getSpeakerAmplitude(panner.sources[0], panner.speakers[0]));
-                callback.sines[1].setAmplitude(panner.getSpeakerAmplitude(panner.sources[0], panner.speakers[1]));
-                std::cout << "Amplitude of speaker 1: " << panner.getSpeakerAmplitude(panner.sources[0], panner.speakers[0]) << std::endl;
-                std::cout << "Amplitude of speaker 2: " << panner.getSpeakerAmplitude(panner.sources[0], panner.speakers[1]) << std::endl;
+                panner.sources[0].setPolarPosition(distance, angle, true);
+                std::cout << "Delay 1: " << panner.getSpeakerDelay(panner.sources[0], panner.speakers[0]) << std::endl;
+                std::cout << "Delay 2: " << panner.getSpeakerDelay(panner.sources[0], panner.speakers[1]) << std::endl;
+                std::cout << "Delay 3: " << panner.getSpeakerDelay(panner.sources[0], panner.speakers[2]) << std::endl;
+                std::cout << "Delay 4: " << panner.getSpeakerDelay(panner.sources[0], panner.speakers[3]) << std::endl;
                 continue;
             case 'w':
                 float dryWet;
