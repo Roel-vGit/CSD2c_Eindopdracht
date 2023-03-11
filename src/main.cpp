@@ -8,6 +8,7 @@
 #include "../include/panner.h"
 #include "../include/chorus.h"
 #include "../include/filter.h"
+#include "../include/waveshaper.h"
 #include <array>
 
 class Callback : public AudioCallback {
@@ -33,8 +34,10 @@ class Callback : public AudioCallback {
                 {
                     sines[channel].tick();
                     saws[channel].tick();
-                    allpass[channel].process(saws[channel].getSample(), outputChannels[channel][sample]);
-                    // outputChannels[channel][sample] = sines[channel].getSample();
+                     outputChannels[channel][sample] = sines[channel].getSample();
+//                    allpass[channel].process(saws[channel].getSample(), outputChannels[channel][sample]);
+//					waveShapers[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
+
                 }
             }
         }
@@ -44,6 +47,7 @@ class Callback : public AudioCallback {
     std::array<Chorus, 2> chorus { Chorus(0.35f, 1.0f, 10), Chorus(0.4f, 1.2f, 15, 0.5f) } ;
     std::array<Allpass, 2> allpass { Allpass(), Allpass() };
     std::array<Delay, 2> delays { Delay(), Delay() };
+    std::array<WaveShaper, 2> waveShapers { WaveShaper(1.0f), WaveShaper(1.0f) };
 
 };
 

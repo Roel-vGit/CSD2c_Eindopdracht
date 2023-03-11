@@ -3,15 +3,15 @@
 //
 
 #pragma once
-#include "util.h"
+#include "Util.h"
 #include "effect.h"
 //#include "writeToFile.h"
 
 using uint = unsigned int;
 
 struct WaveShaper : public Effect {
-	WaveShaper();
-	WaveShaper(uint size);
+	explicit WaveShaper(float k);
+	explicit WaveShaper(uint size);
 	~WaveShaper();
 
 	void calculate(const float& input, float& output) override;

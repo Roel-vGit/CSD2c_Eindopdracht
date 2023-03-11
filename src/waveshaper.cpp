@@ -5,9 +5,11 @@
 #include "waveshaper.h"
 
 // Default constructor.
-WaveShaper::WaveShaper() {
+WaveShaper::WaveShaper(float k) {
+	this->k = k;
 	bufferSize = 2048;
 	buffer = new float[bufferSize];
+	setDrive(k);
 
 }
 // Constructor with buffer size.
@@ -37,12 +39,12 @@ void WaveShaper::calculate(const float& input, float& output) {
 void WaveShaper::setDrive(float k) {
 	this->k = k;
 //	Python plotter for the look-up table.
-	WriteToFile fileWriter("output.csv", true);
+//	WriteToFile fileWriter("output.csv", true);
 
 //	Function to write the look-up table to the buffer.
 	for (int i = 0; i <= bufferSize -1; i++){
-		float x = Util::mapInRange(i, 0.0f, bufferSize -1, -1.0f, 1.0f);
-		buffer[i] = atan(x * k) / atan(k);
-		fileWriter.write(std::to_string(buffer[i]) + "\n");
+		double x = Util::mapInRange(i, 0.0f, bufferSize -1, -1.0f, 1.0f);
+		buffer[i] = (atan(x * k) / atan(k));
+//		fileWriter.write(std::to_string(buffer[i]) + "\n");
 	}
 }
