@@ -58,7 +58,7 @@ class Callback : public AudioCallback {
                     
                     //apply panning
                     speaker[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
-                }
+pul                }
             }
         }
 
