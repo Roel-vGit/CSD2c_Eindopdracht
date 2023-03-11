@@ -18,7 +18,7 @@ public:
     void prepareToPlay (int sampleRate) override;
 
     /*outputs the delayed signal
-    input: input sample to read from
+    input: input sample to read from and store in circular buffer
     output: output sample to write to
     */
     void calculate(const float& input, float& output) override;
@@ -43,7 +43,7 @@ public:
     CircBuffer<float, float> circBuf = CircBuffer<float, float>(sampleRate);
 
 private:
-    int sampleRate;
     float feedback { 0.0f };
     float delayTime { 0.0f };
+    int maxDelay { 0 };
 };

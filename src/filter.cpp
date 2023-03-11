@@ -8,19 +8,19 @@ Filter::~Filter() {};
 //initialize delay buffer size to 1 second
 void Filter::prepareToPlay(int samplerate)
 {
-    this->samplerate = samplerate;
+    this->sampleRate = samplerate;
     circBuf.setSize(samplerate);
     filterBuf.setSize(samplerate);
 }
 
 void Filter::setCutoff(float cutoff)
 {
-    if (cutoff > samplerate/2)
-        cutoff = samplerate/2;
+    if (cutoff > sampleRate/2)
+        cutoff = sampleRate/2;
     else if (cutoff < 0)
         cutoff = 0.0;
 
-    this->cutoff = sin(cutoff*(M_PI/samplerate)); //calculate cutoff -> https://docs.cycling74.com/max7/refpages/onepole~
+    this->cutoff = sin(cutoff*(M_PI/sampleRate)); //calculate cutoff -> https://docs.cycling74.com/max7/refpages/onepole~
 }
 
 void Lowpass::calculate(const float& input, float& output)

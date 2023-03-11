@@ -20,13 +20,12 @@ class Filter : public Effect {
 
     protected:
 
-        CircBuffer<float, uint> circBuf = { CircBuffer<float, uint>((uint)samplerate) }; //delay buffer for allpass input X[n-d]
-        CircBuffer<float, uint> filterBuf = { CircBuffer<float, uint>((uint)samplerate) }; //delay buffer for allpass output (Y[n-d])
+        CircBuffer<float, uint> circBuf = { CircBuffer<float, uint>(48000) }; //delay buffer for allpass input X[n-d]
+        CircBuffer<float, uint> filterBuf = { CircBuffer<float, uint>(48000) }; //delay buffer for allpass output (Y[n-d])
 
         float cutoff;
         float output1 { 0.0f }; //1 sample delay
         float output2; // 2 sample delay
-        int samplerate { 48000 };
         float allpassFeedback { 0.2f };
         double allpassDelay { 5 };
 };

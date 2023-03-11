@@ -10,13 +10,22 @@ public:
     CircBuffer (uint size);
     ~CircBuffer();
 
+    //changes the size of the buffer in samples
     void setSize(uint size);
+
+    //return the size of the buffer in samples
     uint getSize() const;
 
+    //writes to the buffer at the current writeHead position
     void writeSample(dataType value);
+
+    //reads from the buffer at writeHead - delay
     dataType readSample(headType delay);
 
+    //increments the writeHead with 1
     void incrementWrite();
+
+    //returns the writeHead position
     uint getWritePosition() const;    
 
 

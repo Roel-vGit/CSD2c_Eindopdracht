@@ -3,6 +3,8 @@
 #include <cmath>
 #include <vector>
 #include "../libs/Util.h"
+#include "effect.h"
+#include "delay.h"
 
 /*Class that will do the panning calculations based on the speaker positions
 and hardware input*/
@@ -31,51 +33,53 @@ struct Object {
         float getAngle() const;
         float getRadius() const;
 
+        //Returns the speed (movement) of an object.
+        float getSpeed();
+
         private:
         
         float xPos { 0.0f };
         float yPos { 0.0f };
         float radius { 1.0f };
         float angle { 90.0f };
+        float speedBuf { 0.0f };
 };
 
 //----------------------------------------------------------------------
 
-class Panner {
+class Speaker : public Effect, public Object {
     public:
 
         /*Constructor that constructs the objects and positions them in a circle.
         Also constructs one source which is front centered*/
-        Panner(uint numSpeakers, uint numSources);
+        Speaker();
 
         //Destructor
-        ~Panner();
+        ~Speaker();
+
+        void prepareToPlay(int sampleRate) override;
+
+        /*Processes the speaker amplitude and delay time based on the source position
+        Calculate the amplitude and delay time first using the calcAmplitude() and calcDelay() functions*/
+        void calculate(const float& input, float& output) override;
 
         /*Calculates the distance between a source and a speaker and returns the gain
-        of the speaker for that source.
-        source: the audio source object
-        speaker: the speaker object */
-        float getSpeakerAmplitude(const Object& source, const Object& speaker) const;
+        of the speaker for that source position.
+        source: the audio source object */
+        void calcAmplitude(const Object& source);
         
         /*Calculates the delay time of a speaker based on the position of a sound source
-        source: the audio source object
-        speaker: the speaker object */
-        float getSpeakerDelay(const Object& source, const Object& speaker);
+        source: the audio source object */
+        void calcDelay(const Object& source);
 
         /*Returns the distance between a source and a speaker.
-        source: the audio source object
-        speaker: the speaker object */
-        float getDistance(const Object& source, const Object& speaker) const;
+        source: the audio source object */
+        float getDistance(const Object& source) const;
 
-        /*Returns the peed (movement) of a source.
-        source: the source object */
-        float getSpeed(const Object& source);
-
-        std::vector<Object> speakers;
-        std::vector<Object> sources;
-        int numSpeakers;
-        int numSources;
-        float speedBuf { 0.0f };
+        float amplitude { 1.0f };
+        float delayTime { 0.0f };
         float soundRadius { 1.8f };
         float maxDelay { 1.0 };
+
+        Delay delay { Delay(10.0f, 0.0f) };
 };

@@ -43,57 +43,58 @@ float Object::getRadius() const
     return radius;
 }
 
+float Object::getSpeed()
+{
+    speedBuf = (xPos + yPos) - speedBuf;
+    return speedBuf;
+}
 
-//class Panner
+
+//class Speaker
 //----------------------------------------------------------------------
 
 
-Panner::Panner(uint numSpeakers, uint numSources) : numSpeakers(numSpeakers), numSources(numSources)
-{
-    for (uint i = 0; i < numSpeakers; i++)
-    {
-        speakers.push_back(Object());
-    }
-        
-    for (uint i = 0; i < numSources; i++)
-        sources.push_back(Object());
-
-    speakers[0].setPolarPosition(1.0f, 135, true);
-    speakers[1].setPolarPosition(1.0f, 45, true);
-    speakers[2].setPolarPosition(1.0f, 315, true);
-    speakers[3].setPolarPosition(1.0f, 225, true);
-
-}
-
-Panner::~Panner()
+Speaker::Speaker()
 {
 
 }
 
-float Panner::getSpeakerAmplitude(const Object& source, const Object& speaker) const
+Speaker::~Speaker()
 {
-    float distance = (soundRadius - getDistance(source, speaker)) / soundRadius;
+
+}
+
+void Speaker::prepareToPlay(int sampleRate)
+{
+    this->sampleRate = sampleRate;
+    delay.prepareToPlay(sampleRate);
+}
+
+void Speaker::calculate(const float& input, float& output)
+{
+    delay.calculate(input, output);
+    output = output * amplitude;
+}
+
+void Speaker::calcAmplitude(const Object& source)
+{
+    float distance = (soundRadius - getDistance(source)) / soundRadius;
     if (distance < 0.0f) 
         distance = 0.0f;
-    return distance;
+    this->amplitude = distance;
 }
 
-float Panner::getSpeakerDelay(const Object& source, const Object& speaker)
+void Speaker::calcDelay(const Object& source)
 {
-    float delay = getDistance(source, speaker) - Util::mapInRange(source.getRadius(), 0.0f, 0.707f, 1.0f, 0.707f);
-    if (delay < 0.0001f)
-        delay = 0.0f;
-    return delay * maxDelay;
+    float delayValue = getDistance(source) - Util::mapInRange(source.getRadius(), 0.0f, 0.707f, 1.0f, 0.707f);
+    if (delayValue < 0.0001f)
+        delayValue = 0.0f;
+    this->delayTime = delayValue * maxDelay;
+    delay.setDelayTime(this->delayTime);
 }
 
-
-float Panner::getDistance(const Object& source, const Object& speaker) const
+float Speaker::getDistance(const Object& source) const
 {   
-    return Util::calcRadius(speaker.getX() - source.getX(), speaker.getY() - source.getY());
+    return Util::calcRadius(getX() - source.getX(), getY() - source.getY());
 }
 
-float Panner::getSpeed(const Object& source)
-{
-    speedBuf = (source.getX() + source.getY()) - speedBuf;
-    return speedBuf;
-}

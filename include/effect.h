@@ -24,7 +24,7 @@ public:
 
 protected:
 	float input;
-	float sampleRate;
+	int sampleRate { 0 };
 	float dryWet = 1.0f;
 	bool bypass = false;
 };
