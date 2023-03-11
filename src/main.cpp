@@ -40,16 +40,13 @@ class Callback : public AudioCallback {
                 {
                     //test tone
                     saws[channel].tick();
-<<<<<<< Updated upstream
-                    
+
                     //make the audio source circle
                     source.setPolarPosition(1.0f, angle, true);
                     angle += 0.005;
-=======
                      outputChannels[channel][sample] = sines[channel].getSample();
 //                    allpass[channel].process(saws[channel].getSample(), outputChannels[channel][sample]);
 					waveShapers[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
->>>>>>> Stashed changes
 
                     //calculate amplitude and delay per speaker based on source position
                     speaker[channel].calcAmplitude(source);
