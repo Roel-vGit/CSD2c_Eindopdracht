@@ -8,6 +8,7 @@
 #include "../include/panner.h"
 #include "../include/chorus.h"
 #include "../include/filter.h"
+#include <array>
 
 class Callback : public AudioCallback {
     public:

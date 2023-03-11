@@ -1,0 +1,19 @@
+cmake_minimum_required(VERSION 3.24.2)
+
+project(madPanner)
+
+set(CMAKE_CXX_STANDARD 17)
+
+file(GLOB SOURCES "src/*.cpp")
+
+include_directories(include)
+include_directories(libs)
+include_directories(/opt/homebrew/Cellar/jack/1.9.22/include)
+
+add_executable(madPanner ${SOURCES})
+
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-undefined,dynamic_lookup")
+
+find_library(JACK_LIB jack)
+
+target_link_libraries(madPanner ${JACK_LIB})
