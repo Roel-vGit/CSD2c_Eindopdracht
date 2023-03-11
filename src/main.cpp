@@ -8,6 +8,7 @@
 #include "../include/panner.h"
 #include "../include/chorus.h"
 #include "../include/filter.h"
+#include "../include/waveshaper.h"
 #include <array>
 
 class Callback : public AudioCallback {
@@ -66,6 +67,8 @@ class Callback : public AudioCallback {
     std::array<Speaker, 4> speaker { Speaker(), Speaker(), Speaker(), Speaker() };
     Object source { Object() };
     float angle = { 0.0f };
+    std::array<WaveShaper, 2> waveShapers { WaveShaper(1.0f), WaveShaper(1.0f) };
+
 };
 
 
