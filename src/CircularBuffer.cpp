@@ -12,7 +12,7 @@
 template<class dataType, class headType>
 CircBuffer<dataType, headType>::CircBuffer(uint size) : buffer (new dataType[size]), currentSize (size), newBuffer(nullptr)
 { 
-    //initialize writeHeaderto buffer size
+    //initialize writeHeader to buffer size
     readMax = size;
 
     //initialize all samples to 0
