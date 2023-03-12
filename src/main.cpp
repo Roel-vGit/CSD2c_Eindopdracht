@@ -20,7 +20,7 @@ class Callback : public AudioCallback {
                 chorus[i].prepareToPlay(sampleRate);
                 chorus[i].setDryWet(0.5f);  
                 allpass[i].prepareToPlay(sampleRate);
-                allpass[i].setDryWet(0.0f);
+                allpass[i].setDryWet(1.0f);
                 speaker[i].prepareToPlay(sampleRate);
             }
                 //set the speaker positions
@@ -43,21 +43,21 @@ class Callback : public AudioCallback {
                     //make the audio source circle
                     source.setPolarPosition(1.0f, angle, true);
                     angle += 0.005;
-                     outputChannels[channel][sample] = sines[channel].getSample();
+                    // outputChannels[channel][sample] = sines[channel].getSample();
 //                    allpass[channel].process(saws[channel].getSample(), outputChannels[channel][sample]);
-					waveShapers[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
+					// waveShapers[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
 
                     //calculate amplitude and delay per speaker based on source position
                     speaker[channel].calcAmplitude(source);
                     speaker[channel].calcDelay(source);
 
                     //calculate the effects
-                    chorus[channel].process(saws[channel].getSample(), outputChannels[channel][sample]);
-                    allpass[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
+                    allpass[channel].process(saws[channel].getSample(), outputChannels[channel][sample]);
+                    // allpass[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
                     
                     //apply panning
                     speaker[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
-pul                }
+                }
             }
         }
 
@@ -93,11 +93,25 @@ int main() {
                 float dryWet;
                 std::cout << "Enter dry wet: ";
                 std::cin >> dryWet;
-                for (Decorrelator& allpass : callback.allpass)
+                for (Chorus& chorus : callback.chorus)
                 {
-                    allpass.setDryWet(dryWet);
+                    chorus.setDryWet(dryWet);
                 }
-        }
+                continue;
+            case 'a':
+                float gain;
+                float dly;
+                std::cout << "Enter gain: ";
+                std::cin >> gain;
+                std::cout << std::endl << "Enter delay: ";
+                std::cin >> dly;
+                for (Decorrelator& decorrelator : callback.allpass)
+                {
+                    decorrelator.setDryWet(dly);
+                    decorrelator.setCoefficients(gain, dly);
+                }
+                continue;
+        }       
     }
 
     return 0;

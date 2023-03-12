@@ -67,7 +67,7 @@ void Decorrelator::prepareToPlay(int sampleRate)
     this->sampleRate = sampleRate;
     for (Allpass& filter : filters)
         filter.prepareToPlay(sampleRate);
-    setCoefficients();
+    setCoefficients(999, sampleRate);
 }
 
 void Decorrelator::calculate(const float& input, float& output)
@@ -75,6 +75,19 @@ void Decorrelator::calculate(const float& input, float& output)
     output = input;
     for (Allpass& filter : filters)
         filter.calculate(output, output);
+}
 
+void Decorrelator::setCoefficients(int maxFeedback, float maxDelay)
+{  
+    if (maxFeedback > 999)
+        maxFeedback = 999;
+    if (maxDelay > sampleRate)
+        maxDelay = sampleRate;
 
+    for (Allpass& filter : filters)
+    {
+        float gain = Util::random(maxFeedback) / 1000.0f;
+        float delay = Util::random(maxDelay);
+        filter.setAllpass(gain, delay);
+    }
 }

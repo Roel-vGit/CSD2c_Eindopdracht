@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.24.2) # State what CMake version is required.
+cmake_minimum_required(VERSION 3.22.1) # State what CMake version is required.
 
 project(madPanner) # State the name of the project.
 set(CMAKE_CXX_STANDARD 17) # State what compiler to use.
