@@ -10,6 +10,7 @@ include_directories(include) # Include the header file directory.
 include_directories(libs) # Include the library directory.
 
 add_executable(madPanner ${SOURCES}) # Make the executable, name it madPanner and include the .cpp files.
+add_executable(test .jens/test.cpp) # Make the executable, name it test and include the test.cpp file.
 
 find_library(JACK_LIB jack) # Find the jack library and put it in the variable JACK_LIB.
 target_link_libraries(madPanner ${JACK_LIB}) # Link the jack library to the project.
