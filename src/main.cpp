@@ -7,7 +7,7 @@
 #include "../include/triangle.h"
 #include "../include/panner.h"
 #include "../include/chorus.h"
-#include "../include/filter.h"
+#include "../include/decorrelator.h"
 #include "../include/waveshaper.h"
 #include <array>
 
@@ -19,8 +19,8 @@ class Callback : public AudioCallback {
             {
                 chorus[i].prepareToPlay(sampleRate);
                 chorus[i].setDryWet(0.5f);  
-                allpass[i].prepareToPlay(sampleRate);
-                allpass[i].setDryWet(1.0f);
+                decorrelators[i].prepareToPlay(sampleRate);
+                decorrelators[i].setDryWet(1.0f);
                 speaker[i].prepareToPlay(sampleRate);
             }
                 //set the speaker positions
@@ -41,8 +41,10 @@ class Callback : public AudioCallback {
                     saws[channel].tick();
 
                     //make the audio source circle
-                    source.setPolarPosition(1.0f, angle, true);
-                    angle += 0.005;
+                    source.setPolarPosition(1.0f, angle);
+                    angle += 0.0001f;
+                    if (angle > 6.28f)
+                        angle -= 6.28f;
                     // outputChannels[channel][sample] = sines[channel].getSample();
 //                    allpass[channel].process(saws[channel].getSample(), outputChannels[channel][sample]);
 					// waveShapers[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
@@ -51,9 +53,11 @@ class Callback : public AudioCallback {
                     speaker[channel].calcAmplitude(source);
                     speaker[channel].calcDelay(source);
 
+                    // decorrelators[channel].setDryWet(abs(cos(angle)));
+
                     //calculate the effects
-                    allpass[channel].process(saws[channel].getSample(), outputChannels[channel][sample]);
-                    // allpass[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
+                    decorrelators[channel].process(saws[channel].getSample(), outputChannels[channel][sample]);
+                    // decorrelators[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
                     
                     //apply panning
                     speaker[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
@@ -64,7 +68,7 @@ class Callback : public AudioCallback {
     std::array<Sine, 2> sines { Sine(400, 0.5f), Sine(400, 0.5f) };
     std::array<Sawtooth, 2> saws { Sawtooth(100, 0.5f), Sawtooth(100, 0.5f) };
     std::array<Chorus, 2> chorus { Chorus(0.35f, 1.0f, 10), Chorus(0.4f, 1.2f, 15, 0.5f) } ;
-    std::array<Decorrelator, 2> allpass { Decorrelator(), Decorrelator() };
+    std::array<Decorrelator, 2> decorrelators { Decorrelator(), Decorrelator() };
     std::array<Delay, 2> delays { Delay(), Delay() };
     std::array<Speaker, 4> speaker { Speaker(), Speaker(), Speaker(), Speaker() };
     Object source { Object() };
@@ -105,13 +109,22 @@ int main() {
                 std::cin >> gain;
                 std::cout << std::endl << "Enter delay: ";
                 std::cin >> dly;
-                for (Decorrelator& decorrelator : callback.allpass)
+                for (Decorrelator& decorrelator : callback.decorrelators)
                 {
-                    decorrelator.setDryWet(dly);
                     decorrelator.setCoefficients(gain, dly);
                 }
                 continue;
-        }       
+            case 'd':
+                float dw;
+                std::cout << std::endl << "Enter drywet: ";
+                std::cin >> dw;
+                for (Decorrelator& decorrelator : callback.decorrelators)
+                {
+                    decorrelator.setDryWet(dw);
+                }
+                continue;
+        }   
+
     }
 
     return 0;

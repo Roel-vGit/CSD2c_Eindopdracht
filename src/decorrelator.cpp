@@ -1,4 +1,4 @@
-#include "../include/filter.h"
+#include "../include/decorrelator.h"
 #include "../src/CircularBuffer.cpp"
 
 Filter::Filter() {};
@@ -67,7 +67,7 @@ void Decorrelator::prepareToPlay(int sampleRate)
     this->sampleRate = sampleRate;
     for (Allpass& filter : filters)
         filter.prepareToPlay(sampleRate);
-    setCoefficients(999, sampleRate);
+    setCoefficients(0.999f, sampleRate);
 }
 
 void Decorrelator::calculate(const float& input, float& output)
@@ -77,16 +77,19 @@ void Decorrelator::calculate(const float& input, float& output)
         filter.calculate(output, output);
 }
 
-void Decorrelator::setCoefficients(int maxFeedback, float maxDelay)
+void Decorrelator::setCoefficients(float maxFeedback, float maxDelay)
 {  
-    if (maxFeedback > 999)
-        maxFeedback = 999;
+    if (maxFeedback > 0.999f)
+        maxFeedback = 0.999f;
+    else if (maxFeedback <= 0)
+        maxFeedback = abs(maxFeedback);
+
     if (maxDelay > sampleRate)
         maxDelay = sampleRate;
 
     for (Allpass& filter : filters)
     {
-        float gain = Util::random(maxFeedback) / 1000.0f;
+        float gain = Util::random(maxFeedback * 1000) / 1000.0f;
         float delay = Util::random(maxDelay);
         filter.setAllpass(gain, delay);
     }
