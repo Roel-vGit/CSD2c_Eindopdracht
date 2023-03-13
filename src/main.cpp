@@ -47,7 +47,7 @@ class Callback : public AudioCallback {
                     saws[channel].tick();
 
                     //make the audio source circle
-                    source.setPolarPosition(1.0f, angle);
+                    source.setPolarPosition(1.0f, 1.57f);
                     angle += 0.0001f;
                     if (angle > 6.28f)
                         angle -= 6.28f;
@@ -59,7 +59,7 @@ class Callback : public AudioCallback {
                     //calculate the effects
                     flangers[channel].process(saws[channel].getSample(), outputChannels[channel][sample]);
                     chorus[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
-                    decorrelators[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
+                    // decorrelators[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
                     
                     //apply panning
                     speaker[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
@@ -94,6 +94,20 @@ int main() {
             case 'q':
                 running = false;
                 break;
+            case 'd':
+                float dryWet;
+                std::cout << "Enter dry wet: ";
+                std::cin >> dryWet;
+                callback.flangers[0].setDryWet(dryWet);
+                callback.flangers[1].setDryWet(dryWet);
+                continue;
+            case 'b':
+                bool bypass;
+                std::cout << "Enter dry wet: ";
+                std::cin >> bypass;
+                callback.chorus[0].setBypass(bypass);
+                callback.chorus[1].setBypass(bypass);
+                continue;
         }   
 
     }
