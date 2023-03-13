@@ -20,6 +20,8 @@ namespace Util
 
     int random(int maxValue)
     {
+        if (maxValue <= 0)
+            return 0;
         std::srand(clock());
         int randomInt = rand() % maxValue;
         return randomInt;

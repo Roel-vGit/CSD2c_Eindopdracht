@@ -28,7 +28,7 @@ namespace Util
     /*Generate a random integer
     The random seed is changed everytime the function is called. So it will generate a
     new random number when the function is called.
-    maxValue: The maximum integer to be generated.
+    maxValue: The maximum integer to be generated. Does not accept negative values.
     */
     int random(int maxValue);
 

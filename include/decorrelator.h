@@ -68,7 +68,7 @@ class Decorrelator : public Effect {
         void calculate(const float& input, float& output) override;
 
         /*generate random coefficients for the allpass filters
-        maxFeedback: Integer value between 0 and 999 (999 = 99,9% feedback)
+        maxFeedback: floating point value between -0.999f and 0.999f.
         maxDelay: maximum delay in samples. Value between 0 and samplerate */
         void setCoefficients(float maxFeedback, float maxDelay);
     
