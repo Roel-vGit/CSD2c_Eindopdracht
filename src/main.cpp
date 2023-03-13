@@ -7,6 +7,7 @@
 #include "../include/triangle.h"
 #include "../include/panner.h"
 #include "../include/chorus.h"
+// Kleine aanpassing
 
 class Callback : public AudioCallback {
     public:
