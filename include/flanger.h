@@ -17,7 +17,7 @@ class Flanger : public Effect {
         void calculate(const float& input, float& output) override;
 
         /*set depth of the flanger. This is the size of the delay.
-        Do not set to zero. This will cause a segmentation fault in the jack module. */
+        Typical flanger values are between 2 - 5 milliseconds.*/
         void setDepth(float depth);
 
         //set feedback of the delay line
@@ -30,7 +30,7 @@ class Flanger : public Effect {
         Delay delay = { Delay() };
         Triangle triangle = { Triangle(0.5f, 0.9f) };
 
-        float depth { 0.0f };
+        float depth { 2.0f };
         float freq { 1.0f };
         float feedback { 0.8f };
 

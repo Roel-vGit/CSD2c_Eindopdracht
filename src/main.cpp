@@ -51,23 +51,18 @@ class Callback : public AudioCallback {
                     angle += 0.0001f;
                     if (angle > 6.28f)
                         angle -= 6.28f;
-                    // outputChannels[channel][sample] = sines[channel].getSample();
-//                    allpass[channel].process(saws[channel].getSample(), outputChannels[channel][sample]);
-					// waveShapers[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
 
                     //calculate amplitude and delay per speaker based on source position
-                    // speaker[channel].calcAmplitude(source);
-                    // speaker[channel].calcDelay(source);
-
-                    // decorrelators[channel].setDryWet(abs(cos(angle)));
+                    speaker[channel].calcAmplitude(source);
+                    speaker[channel].calcDelay(source);
 
                     //calculate the effects
                     flangers[channel].process(saws[channel].getSample(), outputChannels[channel][sample]);
-                    // chorus[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
-                    // decorrelators[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
+                    chorus[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
+                    decorrelators[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
                     
                     //apply panning
-                    // speaker[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
+                    speaker[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
                 }
             }
         }
@@ -99,55 +94,6 @@ int main() {
             case 'q':
                 running = false;
                 break;
-            case 'w':
-                float dryWet;
-                std::cout << "Enter dry wet: ";
-                std::cin >> dryWet;
-				/*
-				for (int i = 0; i < 3; i++){
-					callback.chorus[i].setDryWet(dryWet);
-					std::cout << callback.chorus[i].getDryWet() << std::endl;
-				}
-				 */
-
-
-                for (Chorus& chorus : callback.chorus)
-                {
-                    chorus.setDryWet(dryWet);
-
-                }
-
-                continue;
-            case 'a':
-                float gain;
-                float dly;
-                std::cout << "Enter gain: ";
-                std::cin >> gain;
-                std::cout << std::endl << "Enter delay: ";
-                std::cin >> dly;
-                for (Decorrelator& decorrelator : callback.decorrelators)
-                {
-                    decorrelator.changeCoefficients(gain, dly);
-                }
-                continue;
-            case 'd':
-                float dw;
-                std::cout << std::endl << "Enter drywet: ";
-                std::cin >> dw;
-                for (Chorus& chorus : callback.chorus)
-                {
-                    chorus.setDryWet(dw);
-                }
-                continue;
-            case 'e':
-                float dwe;
-                std::cout << std::endl << "Enter drywet: ";
-                std::cin >> dw;
-                for (Decorrelator& allpass : callback.decorrelators)
-                {
-                    allpass.setDryWet(dwe);
-                }
-                continue;
         }   
 
     }

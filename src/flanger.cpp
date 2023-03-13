@@ -1,4 +1,5 @@
 #include "../include/flanger.h"
+#include "../libs/util.h"
 
 Flanger::Flanger()
 {
@@ -29,10 +30,10 @@ void Flanger::calculate(const float& input, float& output)
 
 void Flanger::setDepth(float depth)
 {   
-    if (depth > sampleRate)
-        depth = sampleRate;
-    this->depth = depth;    
-    delay.setMaxDelay(depth);
+    if (depth > 1000.0f)
+        depth = 1000.0f;
+    this->depth = depth;
+    triangle.setAmplitude(depth);
 }
 
 void Flanger::setFeedback(float feedback)
