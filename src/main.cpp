@@ -9,6 +9,7 @@
 #include "../include/chorus.h"
 #include "../include/decorrelator.h"
 #include "../include/waveshaper.h"
+#include "../include/flanger.h"
 #include <array>
 
 class Callback : public AudioCallback {
@@ -16,7 +17,9 @@ class Callback : public AudioCallback {
         void prepare(int sampleRate) override
         {
             for (int i = 0; i < 2; i++)
-            {
+            {   
+                flangers[i].prepareToPlay(sampleRate);
+                flangers[i].setDryWet(0.5f);
                 chorus[i].prepareToPlay(sampleRate);
                 chorus[i].setDryWet(0.0f);
                 chorus[i].setType("Chorus");
@@ -24,6 +27,7 @@ class Callback : public AudioCallback {
                 decorrelators[i].setDryWet(1.0f);
                 decorrelators[i].setType("Decorrelator");
                 speaker[i].prepareToPlay(sampleRate);
+                speaker[i+2].prepareToPlay(sampleRate);
             }
                 //set the speaker positions
                 speaker[0].setPolarPosition(1.0f, 135, true);
@@ -38,7 +42,7 @@ class Callback : public AudioCallback {
             auto [inputChannels, outputChannels, numInputChannels, numOutputChannels, numFrames] = buffer;
             for (int channel = 0u; channel < numOutputChannels; ++channel) {  
                 for (int sample = 0u; sample < numFrames; ++sample)
-                {
+                {   
                     //test tone
                     saws[channel].tick();
 
@@ -52,33 +56,32 @@ class Callback : public AudioCallback {
 					// waveShapers[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
 
                     //calculate amplitude and delay per speaker based on source position
-                    speaker[channel].calcAmplitude(source);
-                    speaker[channel].calcDelay(source);
+                    // speaker[channel].calcAmplitude(source);
+                    // speaker[channel].calcDelay(source);
 
                     // decorrelators[channel].setDryWet(abs(cos(angle)));
 
                     //calculate the effects
-                   decorrelators[channel].process(saws[channel].getSample(), outputChannels[channel][sample]);
+                    flangers[channel].process(saws[channel].getSample(), outputChannels[channel][sample]);
                     // chorus[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
                     // decorrelators[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
                     
                     //apply panning
-                    speaker[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
+                    // speaker[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
                 }
             }
         }
 
     std::array<Sine, 2> sines { Sine(400, 0.5f), Sine(400, 0.5f) };
-    std::array<Sawtooth, 2> saws { Sawtooth(100, 0.5f), Sawtooth(100, 0.5f) };
+    std::array<Sawtooth, 2> saws { Sawtooth(300, 0.5f), Sawtooth(300, 0.5f) };
     std::array<Chorus, 2> chorus { Chorus(0.35f, 1.0f, 10), Chorus(0.4f, 1.2f, 15, 0.5f) } ;
     std::array<Decorrelator, 2> decorrelators { Decorrelator(), Decorrelator() };
     std::array<Delay, 2> delays { Delay(), Delay() };
+    std::array<Flanger, 2> flangers { Flanger(), Flanger() };
     std::array<Speaker, 4> speaker { Speaker(), Speaker(), Speaker(), Speaker() };
     Object source { Object() };
     float angle = { 0.0f };
     std::array<WaveShaper, 2> waveShapers { WaveShaper(4.0f), WaveShaper(4.0f) };
-
-
 };
 
 

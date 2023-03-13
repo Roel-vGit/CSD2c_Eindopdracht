@@ -50,6 +50,7 @@
             this->delayTime = Util::msToSamples(delay, sampleRate);
         else
             this->delayTime = delay;
+        
     }
 
     //sets the buffer size (max delay)

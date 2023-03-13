@@ -80,4 +80,3 @@ class Decorrelator : public Effect {
     private:
         Allpass filters[10];
 };
-

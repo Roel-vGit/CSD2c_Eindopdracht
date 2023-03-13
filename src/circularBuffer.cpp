@@ -74,7 +74,8 @@ dataType CircBuffer<dataType, headType>::readSample(headType delay)
     //limit delay to bufferSize
     if (delay > currentSize)
         delay = currentSize;
-    
+    else if (delay <= 0)
+        delay = 0;
     //set delayStarted to true when the writePos has written the samples
     if (writeHead > delay)
         delayStarted = true;
