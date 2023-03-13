@@ -1,6 +1,6 @@
 #include "effect.h"
-#include "../libs/CircularBuffer.h"
-#include "../libs/Util.h"
+#include "../libs/circularBuffer.h"
+#include "../libs/util.h"
 #include <cmath>
 #include <iostream>
 
@@ -27,8 +27,6 @@ class Filter : public Effect {
         float cutoff;
         float output1 { 0.0f }; //1 sample delay
         float output2; // 2 sample delay
-        float allpassFeedback { 0.2f };
-        double allpassDelay { 5 };
 };
 
 class Lowpass : public Filter {
@@ -50,13 +48,18 @@ class Allpass : public Filter {
         /*Sets the allpass filter coefficients and delay
         gain: filter coefficient (value between 0.0f and 1.0f)
         delay: delay of the allpass filter*/
-        void setAllpass(float gain, double delay);
+        void setAllpass(float gain, float delay);
 
         //returns the delay of the allpass filter
         float getAllpassDelay() const;
 
         //returns the feedback (coefficient) of the allpass
         float getAllpassFeedback() const;
+    
+        float allpassFeedback { 0.2f };
+        float allpassDelay { 5 };
+        float gainFactor { 1.0f };
+        float delayFactor { 1.0 };
 };
 
 class Decorrelator : public Effect {
@@ -71,8 +74,10 @@ class Decorrelator : public Effect {
         maxFeedback: floating point value between -0.999f and 0.999f.
         maxDelay: maximum delay in samples. Value between 0 and samplerate */
         void setCoefficients(float maxFeedback, float maxDelay);
+
+        void changeCoefficients(float gainFactor, float delayFactor);
     
     private:
-        Allpass filters[20];
+        Allpass filters[10];
 };
 

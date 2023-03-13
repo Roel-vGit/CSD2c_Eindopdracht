@@ -1,5 +1,5 @@
 #include "../include/decorrelator.h"
-#include "../src/CircularBuffer.cpp"
+#include "circularBuffer.cpp"
 
 Filter::Filter() {};
 
@@ -40,13 +40,13 @@ void Highpass::calculate(const float& input, float& output)
 void Allpass::calculate(const float& input, float& output)
 {   
     circBuf.writeSample(input);
-    output = (allpassFeedback * -1 * input) + circBuf.readSample(allpassDelay) + (allpassFeedback * filterBuf.readSample(allpassDelay));// y[n] = (-g * x[n]) + x[n - d] + (g * y[n - d])
+    output = (allpassFeedback* gainFactor * -1 * input) + circBuf.readSample(allpassDelay * delayFactor) + (allpassFeedback * filterBuf.readSample(allpassDelay));// y[n] = (-g * x[n]) + x[n - d] + (g * y[n - d])
     filterBuf.writeSample(output1);
     circBuf.incrementWrite();
     filterBuf.incrementWrite();
 }
 
-void Allpass::setAllpass(float gain, double delay)
+void Allpass::setAllpass(float gain, float delay)
 {
     this->allpassFeedback = gain;
     this->allpassDelay = delay;
@@ -96,5 +96,14 @@ void Decorrelator::setCoefficients(float maxFeedback, float maxDelay)
         float gain = Util::random(maxFeedback * 1000) / 1000.0f * sign;
         float delay = Util::random(maxDelay);
         filter.setAllpass(gain, delay);
+    }
+}
+
+void Decorrelator::changeCoefficients(float gainFactor, float delayFactor)
+{
+    for (Allpass& filter : filters)
+    {
+        filter.gainFactor = gainFactor;
+        filter.delayFactor = delayFactor;
     }
 }
