@@ -17,11 +17,10 @@ void Effect::process(const float& input, float& output) {
 	try {
 		if (sampleRate == 0)
 			throw 404;
-	}
-
-	catch (int error) {
+	} catch (int error) {
 		std::cout << "Error " << error;
-		std::cout << ". No sample rate entered. You probably forgot to call prepareToPlay() somewhere.. dumbass..." << std::endl;
+		std::cout << ". No sample rate known in " << typeid(*this).name() << ". You probably forgot to call prepareToPlay() dumbass..." << std::endl;
+		exit(1); //exit the program
 	}
 
 	if (bypass){

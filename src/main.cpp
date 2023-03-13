@@ -19,7 +19,7 @@ class Callback : public AudioCallback {
             {
                 chorus[i].prepareToPlay(sampleRate);
                 chorus[i].setDryWet(0.5f);  
-                decorrelators[i].prepareToPlay(sampleRate);
+                // decorrelators[i].prepareToPlay(sampleRate);
                 decorrelators[i].setDryWet(1.0f);
                 speaker[i].prepareToPlay(sampleRate);
             }
@@ -57,7 +57,7 @@ class Callback : public AudioCallback {
 
                     //calculate the effects
                     decorrelators[channel].process(saws[channel].getSample(), outputChannels[channel][sample]);
-                    // decorrelators[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
+                    chorus[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
                     
                     //apply panning
                     speaker[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
@@ -118,9 +118,18 @@ int main() {
                 float dw;
                 std::cout << std::endl << "Enter drywet: ";
                 std::cin >> dw;
-                for (Decorrelator& decorrelator : callback.decorrelators)
+                for (Chorus& chorus : callback.chorus)
                 {
-                    decorrelator.setDryWet(dw);
+                    chorus.setDryWet(dw);
+                }
+                continue;
+            case 'e':
+                float dwe;
+                std::cout << std::endl << "Enter drywet: ";
+                std::cin >> dw;
+                for (Decorrelator& allpass : callback.decorrelators)
+                {
+                    allpass.setDryWet(dwe);
                 }
                 continue;
         }   

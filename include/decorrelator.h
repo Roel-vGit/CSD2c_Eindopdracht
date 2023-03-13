@@ -73,6 +73,6 @@ class Decorrelator : public Effect {
         void setCoefficients(float maxFeedback, float maxDelay);
     
     private:
-        Allpass filters[10];
+        Allpass filters[20];
 };
 
