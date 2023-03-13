@@ -1,6 +1,6 @@
 #include "effect.h"
-#include "../libs/CircularBuffer.h"
-#include "../libs/Util.h"
+#include "../libs/circularBuffer.h"
+#include "../libs/util.h"
 
 #pragma once
 
