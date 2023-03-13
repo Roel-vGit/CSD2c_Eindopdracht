@@ -18,9 +18,11 @@ class Callback : public AudioCallback {
             for (int i = 0; i < 2; i++)
             {
                 chorus[i].prepareToPlay(sampleRate);
-                chorus[i].setDryWet(0.5f);  
+                chorus[i].setDryWet(0.0f);
+                chorus[i].setType("Chorus");
                 decorrelators[i].prepareToPlay(sampleRate);
                 decorrelators[i].setDryWet(1.0f);
+                decorrelators[i].setType("Decorrelator");
                 speaker[i].prepareToPlay(sampleRate);
             }
                 //set the speaker positions
@@ -56,7 +58,8 @@ class Callback : public AudioCallback {
                     // decorrelators[channel].setDryWet(abs(cos(angle)));
 
                     //calculate the effects
-                    decorrelators[channel].process(saws[channel].getSample(), outputChannels[channel][sample]);
+//                    decorrelators[channel].process(saws[channel].getSample(), outputChannels[channel][sample]);
+                    chorus[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
                     // decorrelators[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
                     
                     //apply panning
@@ -97,10 +100,20 @@ int main() {
                 float dryWet;
                 std::cout << "Enter dry wet: ";
                 std::cin >> dryWet;
+				/*
+				for (int i = 0; i < 3; i++){
+					callback.chorus[i].setDryWet(dryWet);
+					std::cout << callback.chorus[i].getDryWet() << std::endl;
+				}
+				 */
+
+
                 for (Chorus& chorus : callback.chorus)
                 {
                     chorus.setDryWet(dryWet);
+
                 }
+
                 continue;
             case 'a':
                 float gain;

@@ -29,15 +29,17 @@ void Effect::process(const float& input, float& output) {
 		return;
 	}
 	calculate(input, output);
+	std::cout << "DryWet from " << type << ": " << this->dryWet << std::endl;
 	output = (output * dryWet) + input * (1.0f - dryWet);
 }
 
 //sets the dryWet of the effect
 void Effect::setDryWet(float dryWet) {
 //	Set range to 0-1.
-	if (dryWet > 1) dryWet = 1;
-	else if (dryWet < 0) dryWet = 0;
+	if (dryWet > 1.0f) dryWet = 1.0f;
+	else if (dryWet < 0.0f) dryWet = 0.0f;
 	this->dryWet = dryWet;
+	std::cout << "DryWet: " << this->dryWet << std::endl;
 }
 
 //sets the effect in bypass mode

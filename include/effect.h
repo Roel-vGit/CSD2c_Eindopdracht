@@ -4,6 +4,7 @@
 
 #pragma once
 #include <iostream>
+#include <string>
 
 class Effect {
 public:
@@ -21,10 +22,15 @@ public:
 
 	void setDryWet(float dryWet);
 	void setBypass(bool bypass);
+	void setType(std::string type) { this->type = type; }
+
+	float getDryWet() { return dryWet; }
 
 protected:
 	float input;
 	int sampleRate { 0 };
 	float dryWet = 1.0f;
 	bool bypass = false;
+	std::string type;
+	std::string name;
 };
