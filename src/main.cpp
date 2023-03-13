@@ -10,6 +10,7 @@
 #include "../include/decorrelator.h"
 #include "../include/waveshaper.h"
 #include "../include/flanger.h"
+#include "../include/reverb.h"
 #include <array>
 
 class Callback : public AudioCallback {
@@ -28,6 +29,12 @@ class Callback : public AudioCallback {
                 decorrelators[i].setType("Decorrelator");
                 speaker[i].prepareToPlay(sampleRate);
                 speaker[i+2].prepareToPlay(sampleRate);
+                reverbs[i].prepareToPlay(sampleRate);
+                delays[i].prepareToPlay(sampleRate);
+                // delays[i].setMaxDelay(sampleRate);
+                delays[i].setDelayTime(200.0f);
+                delays[i].setFeedback(0.5f);
+                delays[i].setDryWet(1.0f);
             }
                 //set the speaker positions
                 speaker[0].setPolarPosition(1.0f, 135, true);
@@ -47,22 +54,23 @@ class Callback : public AudioCallback {
                     saws[channel].tick();
 
                     //make the audio source circle
-                    source.setPolarPosition(1.0f, 1.57f);
-                    angle += 0.0001f;
-                    if (angle > 6.28f)
-                        angle -= 6.28f;
+                    // source.setPolarPosition(1.0f, 1.57f);
+                    // angle += 0.0001f;
+                    // if (angle > 6.28f)
+                    //     angle -= 6.28f;
 
-                    //calculate amplitude and delay per speaker based on source position
-                    speaker[channel].calcAmplitude(source);
-                    speaker[channel].calcDelay(source);
+                    // //calculate amplitude and delay per speaker based on source position
+                    // speaker[channel].calcAmplitude(source);
+                    // speaker[channel].calcDelay(source);
 
                     //calculate the effects
-                    flangers[channel].process(saws[channel].getSample(), outputChannels[channel][sample]);
-                    chorus[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
+                    // flangers[channel].process(saws[channel].getSample(), outputChannels[channel][sample]);
+                    // chorus[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
                     // decorrelators[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
-                    
+                    reverbs[channel].process(inputChannels[channel][sample], outputChannels[channel][sample]);
+
                     //apply panning
-                    speaker[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
+                    // speaker[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
                 }
             }
         }
@@ -73,6 +81,7 @@ class Callback : public AudioCallback {
     std::array<Decorrelator, 2> decorrelators { Decorrelator(), Decorrelator() };
     std::array<Delay, 2> delays { Delay(), Delay() };
     std::array<Flanger, 2> flangers { Flanger(), Flanger() };
+    std::array<Reverb, 2> reverbs { Reverb(), Reverb() };
     std::array<Speaker, 4> speaker { Speaker(), Speaker(), Speaker(), Speaker() };
     Object source { Object() };
     float angle = { 0.0f };
@@ -85,7 +94,7 @@ int main() {
     auto callback = Callback {};
     auto jack = JackModule (callback);
 
-    jack.init(1,2);
+    jack.init(2,2);
 
     bool running = true;
 
@@ -98,15 +107,15 @@ int main() {
                 float dryWet;
                 std::cout << "Enter dry wet: ";
                 std::cin >> dryWet;
-                callback.flangers[0].setDryWet(dryWet);
-                callback.flangers[1].setDryWet(dryWet);
+                callback.chorus[0].setDryWet(dryWet);
+                callback.chorus[1].setDryWet(dryWet);
                 continue;
             case 'b':
                 bool bypass;
                 std::cout << "Enter dry wet: ";
                 std::cin >> bypass;
                 callback.chorus[0].setBypass(bypass);
-                callback.chorus[1].setBypass(bypass);
+                callback.chorus[1].setBypass(bypass); //<---- this does bypass the effect live?!?!?
                 continue;
         }   
 
