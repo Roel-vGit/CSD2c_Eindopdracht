@@ -31,6 +31,6 @@ protected:
 	int sampleRate { 0 };
 	float dryWet = 1.0f;
 	bool bypass = false;
-	std::string type;
+//	std::string type = typeid(*this).name();
 	std::string name;
 };
