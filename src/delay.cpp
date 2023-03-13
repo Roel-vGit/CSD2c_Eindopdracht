@@ -1,5 +1,5 @@
 #include "../include/delay.h"
-#include "../src/CircularBuffer.cpp" //<-- need to include .cpp since it is a template
+#include "circularBuffer.cpp" //<-- need to include .cpp since it is a template
 
     //constructor
     Delay::Delay() 

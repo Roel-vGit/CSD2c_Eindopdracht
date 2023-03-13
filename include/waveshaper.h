@@ -3,7 +3,7 @@
 //
 
 #pragma once
-#include "Util.h"
+#include "util.h"
 #include "effect.h"
 //#include "writeToFile.h"
 

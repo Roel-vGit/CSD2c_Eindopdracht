@@ -1,4 +1,4 @@
-#include "panner.h"
+#include "../include/panner.h"
 #include <iostream>
 
 // Struct Object

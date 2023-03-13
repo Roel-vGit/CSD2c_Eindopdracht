@@ -1,5 +1,5 @@
-#include "../libs/CircularBuffer.h"
-#include "../libs/Util.h"
+#include "../libs/circularBuffer.h"
+#include "../libs/util.h"
 #include <type_traits>
 
 #include <iostream>

@@ -1,5 +1,5 @@
 #include "../libs/jack_module.h"
-#include "CircularBuffer.cpp" //<-- need to include .cpp since it is a template class
+#include "circularBuffer.cpp" //<-- need to include .cpp since it is a template class
 
 #include "../include/delay.h"
 #include "../include/sine.h"
@@ -58,8 +58,8 @@ class Callback : public AudioCallback {
                     // decorrelators[channel].setDryWet(abs(cos(angle)));
 
                     //calculate the effects
-//                    decorrelators[channel].process(saws[channel].getSample(), outputChannels[channel][sample]);
-                    chorus[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
+                   decorrelators[channel].process(saws[channel].getSample(), outputChannels[channel][sample]);
+                    // chorus[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
                     // decorrelators[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
                     
                     //apply panning
@@ -124,16 +124,25 @@ int main() {
                 std::cin >> dly;
                 for (Decorrelator& decorrelator : callback.decorrelators)
                 {
-                    decorrelator.setCoefficients(gain, dly);
+                    decorrelator.changeCoefficients(gain, dly);
                 }
                 continue;
             case 'd':
                 float dw;
                 std::cout << std::endl << "Enter drywet: ";
                 std::cin >> dw;
-                for (Decorrelator& decorrelator : callback.decorrelators)
+                for (Chorus& chorus : callback.chorus)
                 {
-                    decorrelator.setDryWet(dw);
+                    chorus.setDryWet(dw);
+                }
+                continue;
+            case 'e':
+                float dwe;
+                std::cout << std::endl << "Enter drywet: ";
+                std::cin >> dw;
+                for (Decorrelator& allpass : callback.decorrelators)
+                {
+                    allpass.setDryWet(dwe);
                 }
                 continue;
         }   
