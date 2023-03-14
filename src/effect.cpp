@@ -28,7 +28,7 @@ void Effect::process(const float& input, float& output) {
 	return;
 	}
 
-	float dryInput = input; //This fixes the dryWet bug
+	const float dryInput = input; //This fixes the dryWet bug
 	calculate(input, output);
 
 	output = (output * dryWet) + dryInput * (1.0f - dryWet);

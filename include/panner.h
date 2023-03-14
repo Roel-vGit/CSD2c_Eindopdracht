@@ -42,7 +42,8 @@ struct Object {
         float yPos { 0.0f };
         float radius { 1.0f };
         float angle { 90.0f };
-        float speedBuf { 0.0f };
+        float speed { 0.0f };
+        float sum { 0.0 };
 };
 
 //----------------------------------------------------------------------

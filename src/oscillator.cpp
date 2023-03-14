@@ -76,12 +76,12 @@ float Oscillator::polyBLEP(float t)
     if (t < dt) //if phase is at begin
     {
         t /= dt; //scale t
-        return t+t - t*t - 1.0; //2x - x^2 - 1.0 <-- return polynomial
+        return (t+t - t*t - 1.0) * amplitude; //2x - x^2 - 1.0 <-- return polynomial
     }
     else if (t > 1.0 - dt) //if phase is at end
     {
         t = (t - 1.0) / dt; //scale t
-        return t*t + t+t + 1.0; //x^2 + 2x + 1.0 <-- return polynomial
+        return (t*t + t+t + 1.0) * amplitude; //x^2 + 2x + 1.0 <-- return polynomial
     }
     else return 0.0;
 

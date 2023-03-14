@@ -55,7 +55,7 @@ class Callback : public AudioCallback {
                     saws[channel].tick();
 
                     //make the audio source circle
-                    source.setPolarPosition(1.0f, 1.57f);
+                    source.setPolarPosition(1.0f, angle);
                     angle += 0.0001f;
                     if (angle > 6.28f)
                         angle -= 6.28f;
@@ -65,13 +65,17 @@ class Callback : public AudioCallback {
                     panner[channel].calcDelay(source);
 
                     //calculate the effects
-                    // flangers[channel].process(saws[channel].getSample(), outputChannels[channel][sample]);
-                    // chorus[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
-                    // decorrelators[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
-                    reverbs[channel].process(inputChannels[channel][sample], outputChannels[channel][sample]);
-
+                    flangers[channel].process(saws[channel].getSample(), outputChannels[channel][sample]);
+                    chorus[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
+                    decorrelators[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
+                    
                     //apply panning
                     panner[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
+                    
+                    //apply reverb (do this after panning so the reverb does not get panned)
+                    reverbs[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
+
+
                 }
             }
         }
@@ -109,8 +113,8 @@ int main() {
                 float dryWet;
                 std::cout << "Enter dry wet: ";
                 std::cin >> dryWet;
-                callback.chorus[0].setDryWet(dryWet);
-                callback.chorus[1].setDryWet(dryWet);
+                callback.reverbs[0].setDryWet(dryWet);
+                callback.reverbs[1].setDryWet(dryWet);
                 std::cout << "chorus L:" << callback.chorus[0].getDryWet() << std::endl;
                 std::cout << "chorus R:" << callback.chorus[0].getDryWet() << std::endl;
                 continue;
@@ -119,7 +123,11 @@ int main() {
                 std::cout << "Enter dry wet: ";
                 std::cin >> bypass;
                 callback.chorus[0].setBypass(bypass);
-                callback.chorus[1].setBypass(bypass); //<---- this does bypass the effect live?!?!?
+                callback.chorus[1].setBypass(bypass);
+                callback.flangers[0].setBypass(bypass);
+                callback.flangers[1].setBypass(bypass);
+                callback.decorrelators[0].setBypass(bypass);
+                callback.decorrelators[1].setBypass(bypass);
                 continue;
             case 's':
                 float amp;
