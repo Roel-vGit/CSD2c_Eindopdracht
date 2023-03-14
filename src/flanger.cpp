@@ -12,20 +12,20 @@ Flanger::~Flanger()
 }
 
 
-void Flanger::prepareToPlay(int samplerate)
+void Flanger::prepareToPlay(int sampleRate)
 {
-    this->sampleRate = samplerate;
-    delay.prepareToPlay(samplerate);
-    delay.setMaxDelay(2.0f);
+    this->sampleRate = sampleRate;
+    delay.prepareToPlay(sampleRate);
+    delay.setMaxDelay(sampleRate);
     delay.setDelayTime(depth);
     delay.setFeedback(feedback);
-    triangle.setSamplerate(samplerate);
+    triangle.setSamplerate(sampleRate);
 }
 
 void Flanger::calculate(const float& input, float& output)
 {
     tick();
-    delay.calculate(input, output);
+    delay.process(input, output);
 }
 
 void Flanger::setDepth(float depth)

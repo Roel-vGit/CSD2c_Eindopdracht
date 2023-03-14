@@ -4,6 +4,8 @@
 #include "sawtooth.h"
 #include "triangle.h"
 
+#pragma once
+
 class Flanger : public Effect {
     public:
 
@@ -11,7 +13,7 @@ class Flanger : public Effect {
         ~Flanger();
 
         //Sets the delay and LFO
-        void prepareToPlay(int samplerate) override;
+        void prepareToPlay(int sampleRate) override;
 
         //Outputs the flanger effect
         void calculate(const float& input, float& output) override;

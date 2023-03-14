@@ -45,5 +45,5 @@ public:
 private:
     float feedback { 0.0f };
     float delayTime { 0.0f };
-    int maxDelay { 0 };
+    int maxDelay { 1 };
 };

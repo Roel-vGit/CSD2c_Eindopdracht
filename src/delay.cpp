@@ -25,8 +25,8 @@
     void Delay::prepareToPlay (int sampleRate)
     {
         this->sampleRate = sampleRate;
-        circBuf.setSize(Util::msToSamples(maxDelay, sampleRate));
-        setDelayTime(0.0f);
+        circBuf.setSize(sampleRate);
+        setDelayTime(200.0f);
     }
 
     /*outputs the delayed signal

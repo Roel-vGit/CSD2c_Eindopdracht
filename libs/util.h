@@ -54,7 +54,7 @@ namespace Util
     float degreesToRadians(float degrees);
 
     //convert milliseconds to samples
-    float msToSamples(float ms, int sampleRate);
+    int msToSamples(float ms, int sampleRate);
 
     //convert samples to milliseconds
     float samplesToMs(float samples, int sampleRate);

@@ -10,6 +10,7 @@
 #include "../include/decorrelator.h"
 #include "../include/waveshaper.h"
 #include "../include/flanger.h"
+#include "../include/reverb.h"
 #include <array>
 
 class Callback : public AudioCallback {
@@ -21,19 +22,26 @@ class Callback : public AudioCallback {
                 flangers[i].prepareToPlay(sampleRate);
                 flangers[i].setDryWet(0.5f);
                 chorus[i].prepareToPlay(sampleRate);
-                chorus[i].setDryWet(0.0f);
+                chorus[i].setDryWet(0.5f);
                 chorus[i].setType("Chorus");
                 decorrelators[i].prepareToPlay(sampleRate);
                 decorrelators[i].setDryWet(1.0f);
                 decorrelators[i].setType("Decorrelator");
-                speaker[i].prepareToPlay(sampleRate);
-                speaker[i+2].prepareToPlay(sampleRate);
+                panner[i].prepareToPlay(sampleRate);
+                panner[i+2].prepareToPlay(sampleRate);
+                reverbs[i].prepareToPlay(sampleRate);
+                reverbs[i].setDryWet(1.0f);
+                delays[i].prepareToPlay(sampleRate);
+                // delays[i].setMaxDelay(sampleRate);
+                delays[i].setDelayTime(200.0f);
+                delays[i].setFeedback(0.5f);
+                delays[i].setDryWet(1.0f);
             }
-                //set the speaker positions
-                speaker[0].setPolarPosition(1.0f, 135, true);
-                speaker[1].setPolarPosition(1.0f, 45, true);
-                speaker[2].setPolarPosition(1.0f, 315, true);
-                speaker[3].setPolarPosition(1.0f, 225, true);
+                //set the panner positions
+                panner[0].setPolarPosition(1.0f, 135, true);
+                panner[1].setPolarPosition(1.0f, 45, true);
+                panner[2].setPolarPosition(1.0f, 315, true);
+                panner[3].setPolarPosition(1.0f, 225, true);
         }
            
 
@@ -52,17 +60,18 @@ class Callback : public AudioCallback {
                     if (angle > 6.28f)
                         angle -= 6.28f;
 
-                    //calculate amplitude and delay per speaker based on source position
-                    speaker[channel].calcAmplitude(source);
-                    speaker[channel].calcDelay(source);
+                    // //calculate amplitude and delay per panner based on source position
+                    panner[channel].calcAmplitude(source);
+                    panner[channel].calcDelay(source);
 
                     //calculate the effects
-                    flangers[channel].process(saws[channel].getSample(), outputChannels[channel][sample]);
-                    chorus[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
+                    // flangers[channel].process(saws[channel].getSample(), outputChannels[channel][sample]);
+                    // chorus[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
                     // decorrelators[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
-                    
+                    reverbs[channel].process(inputChannels[channel][sample], outputChannels[channel][sample]);
+
                     //apply panning
-                    speaker[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
+                    panner[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
                 }
             }
         }
@@ -74,7 +83,8 @@ class Callback : public AudioCallback {
     std::array<Decorrelator, 2> decorrelators { Decorrelator(), Decorrelator() };
     std::array<Delay, 2> delays { Delay(), Delay() };
     std::array<Flanger, 2> flangers { Flanger(), Flanger() };
-    std::array<Speaker, 4> speaker { Speaker(), Speaker(), Speaker(), Speaker() };
+    std::array<Reverb, 2> reverbs { Reverb(), Reverb() };
+    std::array<Speaker, 4> panner { Speaker(), Speaker(), Speaker(), Speaker() };
     Object source { Object() };
     float angle = { 0.0f };
     std::array<WaveShaper, 2> waveShapers { WaveShaper(4.0f), WaveShaper(4.0f) };
@@ -86,7 +96,7 @@ int main() {
     auto callback = Callback {};
     auto jack = JackModule (callback);
 
-    jack.init(1,2);
+    jack.init(2,2);
 
     bool running = true;
 
@@ -99,16 +109,24 @@ int main() {
                 float dryWet;
                 std::cout << "Enter dry wet: ";
                 std::cin >> dryWet;
-                callback.flangers[0].setDryWet(dryWet);
-                callback.flangers[1].setDryWet(dryWet);
+                callback.chorus[0].setDryWet(dryWet);
+                callback.chorus[1].setDryWet(dryWet);
+                std::cout << "chorus L:" << callback.chorus[0].getDryWet() << std::endl;
+                std::cout << "chorus R:" << callback.chorus[0].getDryWet() << std::endl;
                 continue;
             case 'b':
                 bool bypass;
                 std::cout << "Enter dry wet: ";
                 std::cin >> bypass;
                 callback.chorus[0].setBypass(bypass);
-                callback.chorus[1].setBypass(bypass);
+                callback.chorus[1].setBypass(bypass); //<---- this does bypass the effect live?!?!?
                 continue;
+            case 's':
+                float amp;
+                std::cout << "Enter saw amp: ";
+                std::cin >> amp;
+                callback.saws[0].setAmplitude(amp);
+                callback.saws[1].setAmplitude(amp);
         }   
 
     }
