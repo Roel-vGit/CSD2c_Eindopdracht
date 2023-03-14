@@ -30,6 +30,7 @@ class Callback : public AudioCallback {
                 panner[i].prepareToPlay(sampleRate);
                 panner[i+2].prepareToPlay(sampleRate);
                 reverbs[i].prepareToPlay(sampleRate);
+                reverbs[i].setDryWet(1.0f);
                 delays[i].prepareToPlay(sampleRate);
                 // delays[i].setMaxDelay(sampleRate);
                 delays[i].setDelayTime(200.0f);
@@ -64,10 +65,10 @@ class Callback : public AudioCallback {
                     panner[channel].calcDelay(source);
 
                     //calculate the effects
-                    flangers[channel].process(saws[channel].getSample(), outputChannels[channel][sample]);
-                    chorus[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
-                    decorrelators[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
-                    // reverbs[channel].process(saws[channel].getSample(), outputChannels[channel][sample]);
+                    // flangers[channel].process(saws[channel].getSample(), outputChannels[channel][sample]);
+                    // chorus[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
+                    // decorrelators[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
+                    reverbs[channel].process(inputChannels[channel][sample], outputChannels[channel][sample]);
 
                     //apply panning
                     panner[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
