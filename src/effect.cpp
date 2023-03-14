@@ -24,12 +24,14 @@ void Effect::process(const float& input, float& output) {
 	}
 
 	if (bypass){
-		output = input;
-		return;
+	output = input;
+	return;
 	}
+
+	float dryInput = input; //This fixes the dryWet bug
 	calculate(input, output);
-	// std::cout << "DryWet from " << typeid(*this).name() << ": " << this->dryWet << std::endl;
-	output = (output * dryWet) + input * (1.0f - dryWet);
+
+	output = (output * dryWet) + dryInput * (1.0f - dryWet);
 }
 
 //sets the dryWet of the effect

@@ -52,18 +52,19 @@ class Reverb : public Effect {
         {
             allpassFilters[i].process(output, output);
         }
-        delays[0].process(output + feedback1, output);
+        delays[0].process(output + feedback1, output); // a
         lowpass[1].process(output, output);
-        allpassFilters[6].process(output, output);
-        delays[1].process(output, output);
-        delays[2].process(output * 0.7f, output);
+        allpassFilters[6].process(output, output); // b
+        delays[1].process(output, output);  // c
+        delays[2].process(output * 0.7f, output); // d
         lowpass[2].process(output, output);
-        allpassFilters[7].process(output, output);
-        delays[3].process(output, output);
+        allpassFilters[7].process(output, output); // e
+        delays[3].process(output, output); // f
         feedback1 = output * 0.7f;
+        
+
+
     }
-
-
 
     private:
         Allpass allpassFilters[8];
@@ -74,7 +75,7 @@ class Reverb : public Effect {
         float damping;
         float decay;
         float feedback1 { 0.0f };
-
+        float outputLeft { 0.0f };
 
 
 };

@@ -27,7 +27,7 @@ void Chorus::calculate(const float& input, float& output)
     lfo.tick();
     float modulation = delayTime + depth * lfo.getSample();
     delay.setDelayTime(modulation);
-    delay.calculate(input, output);
+    delay.process(input, output);
 }
 
 void Chorus::setFeedback(float feedback)
