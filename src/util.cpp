@@ -62,7 +62,7 @@ namespace Util
         return degrees * (pi/180.0f);
     }
         
-    float msToSamples(float ms, int sampleRate)
+    int msToSamples(float ms, int sampleRate)
     {
         return (ms/1000.0f) * sampleRate;
     }

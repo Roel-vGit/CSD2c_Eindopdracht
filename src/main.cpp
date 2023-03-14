@@ -120,6 +120,12 @@ int main() {
                 callback.chorus[0].setBypass(bypass);
                 callback.chorus[1].setBypass(bypass); //<---- this does bypass the effect live?!?!?
                 continue;
+            case 's':
+                float amp;
+                std::cout << "Enter saw amp: ";
+                std::cin >> amp;
+                callback.saws[0].setAmplitude(amp);
+                callback.saws[1].setAmplitude(amp);
         }   
 
     }
