@@ -2,9 +2,9 @@
 #include "circularBuffer.cpp" //<-- need to include .cpp since it is a template class
 
 #include "../include/delay.h"
-#include "../include/sine.h"
-#include "../include/sawtooth.h"
-#include "../include/triangle.h"
+//#include "../include/sine.h"
+//#include "../include/sawtooth.h"
+//#include "../include/triangle.h"
 #include "../include/panner.h"
 #include "../include/chorus.h"
 #include "../include/decorrelator.h"
@@ -66,6 +66,7 @@ class Callback : public AudioCallback {
                 }
             }
         }
+
 
     std::array<Sine, 2> sines { Sine(400, 0.5f), Sine(400, 0.5f) };
     std::array<Sawtooth, 2> saws { Sawtooth(300, 0.5f), Sawtooth(300, 0.5f) };
