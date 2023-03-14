@@ -1,16 +1,8 @@
-cmake_minimum_required(VERSION 3.22.1) # State what CMake version is required.
-
-project(madPanner) # State the name of the project.
-set(CMAKE_CXX_STANDARD 17) # State what compiler to use.
-
-file(GLOB SOURCES "src/*.cpp") # Make a variable named SOURCES.
-
-include_directories(/usr/local/include) # Include the jack directory path.
-include_directories(include) # Include the header file directory.
-include_directories(libs) # Include the library directory.
-
-add_executable(madPanner ${SOURCES}) # Make the executable, name it madPanner and include the .cpp files.
-add_executable(test .jens/test.cpp) # Make the executable, name it test and include the test.cpp file.
-
-find_library(JACK_LIB jack) # Find the jack library and put it in the variable JACK_LIB.
-target_link_libraries(madPanner ${JACK_LIB}) # Link the jack library to the project.
+cmake_minimum_required(VERSION 3.10) # Set minimum required CMake version
+project(madPanner) # Executable name
+file(GLOB SOURCES "src/*.cpp") # Store all .cpp files in folder 'src' to variable 'SOURCES'
+include_directories(/isr/include/jack) # Include the jack header file
+include_directories(include) # Include all the project header files
+include_directories(libs) # Include all the library header files
+add_executable(madPanner ${SOURCES}) # Create executable 'madPanner'
+target_link_libraries(madPanner /usr/lib/x86_64-linux-gnu/libjack.so) # Tell the linker where to find the jack library

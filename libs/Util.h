@@ -2,12 +2,11 @@
 #include <cmath>
 #include <cstdlib>
 #include <ctime>
-#include <iostream>
 
 
 #pragma once
 
-static const float pi = 3.14159265359;
+static const float pi = acos(-1);
 
 namespace Util
 {

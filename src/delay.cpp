@@ -10,7 +10,7 @@
     //constructor with initializer list
     Delay::Delay(float maxDelay, float delayTime, float feedback)
     {
-        this->maxDelay = maxDelay;
+        setMaxDelay(maxDelay);
         setDelayTime(delayTime);
         setFeedback(feedback);
     }
@@ -25,7 +25,7 @@
     void Delay::prepareToPlay (int sampleRate)
     {
         this->sampleRate = sampleRate;
-        circBuf.setSize(Util::msToSamples(maxDelay, sampleRate));
+        circBuf.setSize(sampleRate*2);
         setDelayTime(0.0f);
     }
 
@@ -55,7 +55,6 @@
     //sets the buffer size (max delay)
     void Delay::setMaxDelay(float maxDelay)
     {
-        this->maxDelay = maxDelay;
         circBuf.setSize((int)Util::msToSamples(maxDelay, sampleRate));
     }
 

@@ -34,6 +34,7 @@ class Chorus : public Effect {
         float rate { 2.0f };
         float depth { 20.0f };
         const float delayTime { 25.0f };
+        float sampleRate;
         
         Delay delay = { Delay(50, delayTime) };
         Sine lfo = { Sine(rate, 0.5f) };
