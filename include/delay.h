@@ -1,24 +1,24 @@
 #include "effect.h"
-#include "../libs/CircularBuffer.h"
-#include "../libs/Util.h"
+#include "../libs/circularBuffer.h"
+#include "../libs/util.h"
 
 #pragma once
 
 class Delay : public Effect {
 public:
-    //constructor
+    //Constructor
     Delay();
 
     Delay(float maxDelay, float delayTime, float feedback = 0.0f);
 
-    //Destrcutor
+    //Destructor
     ~Delay();
 
     //Initialize delay buffer to 2 seconds and delay time to 0 ms (no delay)*/
     void prepareToPlay (int sampleRate) override;
 
     /*outputs the delayed signal
-    input: input sample to read from
+    input: input sample to read from and store in circular buffer
     output: output sample to write to
     */
     void calculate(const float& input, float& output) override;
@@ -43,7 +43,7 @@ public:
     CircBuffer<float, float> circBuf = CircBuffer<float, float>(sampleRate);
 
 private:
-    int sampleRate;
     float feedback { 0.0f };
     float delayTime { 0.0f };
+    int maxDelay { 1 };
 };

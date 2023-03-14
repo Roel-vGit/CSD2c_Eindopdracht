@@ -6,7 +6,7 @@
 
 #pragma once
 
-static const float pi = acos(-1);
+static const float pi = 3.14159265359;
 
 namespace Util
 {
@@ -28,7 +28,7 @@ namespace Util
     /*Generate a random integer
     The random seed is changed everytime the function is called. So it will generate a
     new random number when the function is called.
-    maxValue: The maximum integer to be generated.
+    maxValue: The maximum integer to be generated. Does not accept negative values.
     */
     int random(int maxValue);
 
@@ -54,7 +54,7 @@ namespace Util
     float degreesToRadians(float degrees);
 
     //convert milliseconds to samples
-    float msToSamples(float ms, int sampleRate);
+    int msToSamples(float ms, int sampleRate);
 
     //convert samples to milliseconds
     float samplesToMs(float samples, int sampleRate);

@@ -1,5 +1,5 @@
 #include "../include/delay.h"
-#include "../src/CircularBuffer.cpp" //<-- need to include .cpp since it is a template
+#include "circularBuffer.cpp" //<-- need to include .cpp since it is a template
 
     //constructor
     Delay::Delay() 
@@ -10,7 +10,7 @@
     //constructor with initializer list
     Delay::Delay(float maxDelay, float delayTime, float feedback)
     {
-        setMaxDelay(maxDelay);
+        this->maxDelay = maxDelay;
         setDelayTime(delayTime);
         setFeedback(feedback);
     }
@@ -25,8 +25,8 @@
     void Delay::prepareToPlay (int sampleRate)
     {
         this->sampleRate = sampleRate;
-        circBuf.setSize(sampleRate*2);
-        setDelayTime(0.0f);
+        circBuf.setSize(sampleRate);
+        setDelayTime(200.0f);
     }
 
     /*outputs the delayed signal
@@ -50,11 +50,13 @@
             this->delayTime = Util::msToSamples(delay, sampleRate);
         else
             this->delayTime = delay;
+        
     }
 
     //sets the buffer size (max delay)
     void Delay::setMaxDelay(float maxDelay)
     {
+        this->maxDelay = maxDelay;
         circBuf.setSize((int)Util::msToSamples(maxDelay, sampleRate));
     }
 

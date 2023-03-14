@@ -1,5 +1,5 @@
-#include "../libs/CircularBuffer.h"
-#include "../libs/Util.h"
+#include "../libs/circularBuffer.h"
+#include "../libs/util.h"
 #include <type_traits>
 
 #include <iostream>
@@ -12,7 +12,7 @@
 template<class dataType, class headType>
 CircBuffer<dataType, headType>::CircBuffer(uint size) : buffer (new dataType[size]), currentSize (size), newBuffer(nullptr)
 { 
-    //initialize writeHeaderto buffer size
+    //initialize writeHeader to buffer size
     readMax = size;
 
     //initialize all samples to 0
@@ -74,7 +74,8 @@ dataType CircBuffer<dataType, headType>::readSample(headType delay)
     //limit delay to bufferSize
     if (delay > currentSize)
         delay = currentSize;
-    
+    else if (delay <= 0)
+        delay = 0;
     //set delayStarted to true when the writePos has written the samples
     if (writeHead > delay)
         delayStarted = true;
