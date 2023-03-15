@@ -120,7 +120,7 @@ int main() {
                 continue;
             case 'b':
                 bool bypass;
-                std::cout << "Enter dry wet: ";
+                std::cout << "Enter bypass: ";
                 std::cin >> bypass;
                 callback.chorus[0].setBypass(bypass);
                 callback.chorus[1].setBypass(bypass);
