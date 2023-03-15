@@ -39,9 +39,6 @@ class Callback : public AudioCallback {
                 speaker[3].setPolarPosition(1.0f, 225, true);
 
 				angleStep = 0.0001f;
-
-				// touchpad2.setCartesianPosition(1.0f, 0.0f);
-				// std::cout << "Angle: " << touchpad2.getAngle() << std::endl;
         }
            
 
@@ -54,6 +51,9 @@ class Callback : public AudioCallback {
                     //test tone
                     saws[channel].tick();
 
+                    //receive the controller values here (do this in auxilliary task in Bela)
+                    //-----------------------------------------------------------------------
+
                     //make the audio source circle
                     joystick1.setPolarPosition(1.0f, angle);
 					joystick2.setPolarPosition(1.0f, angle);
@@ -63,6 +63,13 @@ class Callback : public AudioCallback {
 
 					joystick1.calcSpeed();
 					joystick2.calcSpeed();
+
+                    //calculate amplitude and delay per speaker based on joystick1 position
+                    speaker[channel].calcAmplitude(joystick1);
+                    speaker[channel].calcDelay(joystick2);
+
+                    //adjust parameters here (go wild)
+                    //-----------------------------------------------------------------------
 
 					// flanging based on movement of the joysticks
 					flangers[channel].setDryWet(joystick1.getSpeed() + joystick2.getSpeed());
@@ -80,14 +87,12 @@ class Callback : public AudioCallback {
                     reverbs[channel].setDryWet(touchpad2.getRadius());
 
                     //calculate the effects
+                    //-----------------------------------------------------------------------   
+
                     flangers[channel].process(saws[channel].getSample(), outputChannels[channel][sample]);
                     chorus[channel].process(saws[channel].getSample(), outputChannels[channel][sample]);
                     decorrelators[channel].process(saws[channel].getSample(), outputChannels[channel][sample]);
                     
-					// //calculate amplitude and delay per speaker based on joystick1 position
-                    speaker[channel].calcAmplitude(joystick1);
-                    speaker[channel].calcDelay(joystick2);
-
                     //apply panning
                     speaker[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
                     
