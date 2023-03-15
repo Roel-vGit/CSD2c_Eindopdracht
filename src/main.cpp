@@ -14,13 +14,13 @@
 #include "../include/rack.h"
 #include <array>
 
-int outputs_ = 2;
+//int outputs_ = 2;
 // Effect Chain = [WaveShaper, Decorrelator, Chorus, Flanger, Reverb, Panner, Amp];
-int waveshaper = 0;
-int decorrelator = 1;
-int chorus = 2;
-int flanger = 3;
-int reverb = 4;
+//int waveshaper = 0;
+//int decorrelator = 1;
+//int chorus = 2;
+//int flanger = 3;
+//int reverb = 4;
 //int panner = 5;
 
 class Callback : public AudioCallback {
@@ -32,8 +32,8 @@ class Callback : public AudioCallback {
 				chorus_[i].setDryWet(1.0f);
 			}
 //			Initializing the amount of panners based on the number of outputs.
-			for(int i = 0; i < outputs_; i++){
-				float increment = 360.0f / outputs_;
+			for(int i = 0; i < 2; i++){
+				float increment = 360.0f / 2;
 				float angle = 135 - increment * i;
 				if (angle < 0) angle += 360; else if (angle > 360) angle -= 360;
 				panner.push_back(new Panner());
@@ -76,7 +76,7 @@ class Callback : public AudioCallback {
 						pChorus->setDryWet(1.0f);
 						pChorus->setFeedback(0.5f);
 						pChorus->setRate(0.5f);
-						pChorus->setDepth(0.5f);
+						pChorus->setDepth(15.0f);
 						pChorus->setLFOPhase(0 + (0.5f * counter));
 					}
 					if (instances->getType() == "Flanger"){
@@ -94,7 +94,7 @@ class Callback : public AudioCallback {
 			}
 
 			int counter_ = 0;
-			for (auto instance : rack.bank[chorus]){
+			for (auto instance : rack.bank[2]){
 				auto* pChorus = dynamic_cast<Chorus*>(instance);
 				std::cout  << pChorus->getType() << " " << counter_ << std::endl;
 				std::cout << "	SampleRate:	" << pChorus->getSampleRate() << std::endl;
@@ -124,9 +124,7 @@ class Callback : public AudioCallback {
 //					To use and effect type:
 //						" rack.bank["effect"	][channel]->process(outputChannels[channel][sample], outputChannels[channel][sample]); "
 //						rack.bank[flanger][channel]->process(outputChannels[channel][sample], outputChannels[channel][sample]);
-						rack.bank[2][channel]->process(saws[channel].getSample(), outputChannels[channel][sample]);
-						std::cout << rack.bank[2][channel]->getType() << std::endl;
-						std::cout << rack.bank[3][channel]->getType() << std::endl;
+//						rack.bank[2][channel]->process(saws[channel].getSample(), outputChannels[channel][sample]);
 
 
 //					rack.bank[waveshaper][channel]->process(outputChannels[channel][sample], outputChannels[channel][sample]);
@@ -174,7 +172,7 @@ class Callback : public AudioCallback {
         }
 
 //		Initiate the effect rack.
-		Rack rack {Rack(outputs_)};
+		Rack rack {Rack(2)};
     	std::array<Sine, 2> sines { Sine(400, 0.5f), Sine(400, 0.5f) };
     	std::array<Sawtooth, 2> saws { Sawtooth(300, 0.5f), Sawtooth(300, 0.5f) };
 		std::array<Chorus, 2> chorus_ { Chorus(0.5f, 0.5f, 1.0f, 0.0f), Chorus(0.5f, 0.5f, 1.0f, 0.5f) };
@@ -219,25 +217,10 @@ int main() {
                 callback.saws[1].setAmplitude(amp);
 
 				continue;
-			case ',':
-				int channel;
-				std::cout << "What channel do you want to see?\n"; std::cin >> channel;
+		}
+	}
 
-				for (auto & effect : callback.rack.bank) {
-					int counter = 0;
-					for (auto & instances : effect){
-						if (counter == channel){
-							std::cout << instances->getType() << ", ";
-							std::cout << "DryWet: " << instances->getDryWet() << " ";
-//							std::cout << "SampleRate: " << instances->getSampleRate();
-							std::cout << std::endl;
-						}
-					counter++;
-					}
-				}
-        }
 
-    }
 
     return 0;
 }
