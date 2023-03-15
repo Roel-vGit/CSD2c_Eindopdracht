@@ -3,7 +3,7 @@
 
 Flanger::Flanger()
 {
-
+	this->type = "Flanger";
 }
 
 Flanger::~Flanger()

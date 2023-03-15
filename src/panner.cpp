@@ -61,7 +61,7 @@ void Object::calcSpeed()
 
 Speaker::Speaker()
 {
-
+	this->type = "Speaker";
 }
 
 Speaker::~Speaker()

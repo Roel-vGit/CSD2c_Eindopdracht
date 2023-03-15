@@ -2,7 +2,7 @@
 
 Reverb::Reverb() 
 {
-
+	this->type = "Reverb";
 }
 Reverb::~Reverb() 
 {

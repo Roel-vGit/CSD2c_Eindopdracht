@@ -4,7 +4,7 @@
     //constructor
     Delay::Delay() 
     {
-
+		this->type = "Delay";
     }
 
     //constructor with initializer list

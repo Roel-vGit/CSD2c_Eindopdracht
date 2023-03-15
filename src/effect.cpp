@@ -15,7 +15,7 @@ void Effect::prepareToPlay(int sampleRate) { this->sampleRate = sampleRate; }
 // Using constant float because you never want to change the input.
 void Effect::process(const float& input, float& output) {
 	try {
-		if (sampleRate == 0)
+		if (this->sampleRate == 0)
 			throw 404;
 	} catch (int error) {
 		std::cout << "Error " << error;

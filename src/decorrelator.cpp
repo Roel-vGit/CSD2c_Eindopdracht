@@ -1,7 +1,9 @@
 #include "../include/decorrelator.h"
 #include "circularBuffer.cpp"
 
-Filter::Filter() {};
+Filter::Filter() {
+	this->type = "Filter";
+};
 
 Filter::~Filter() {};
 
@@ -69,6 +71,7 @@ float Allpass::getAllpassFeedback() const
 
 void Decorrelator::prepareToPlay(int sampleRate)
 {
+	this->type = "Decorrelator";
     this->sampleRate = sampleRate;
     for (Allpass& filter : filters)
         filter.prepareToPlay(sampleRate);
