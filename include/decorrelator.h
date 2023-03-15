@@ -15,6 +15,8 @@ class Decorrelator : public Effect {
 
         void calculate(const float& input, float& output) override;
 
+		Effect* clone() override {return new Decorrelator(*this);}
+
         /*generate random coefficients for the allpass filters
         maxFeedback: floating point value between -0.999f and 0.999f.
         maxDelay: maximum delay in samples. Value between 0 and samplerate */

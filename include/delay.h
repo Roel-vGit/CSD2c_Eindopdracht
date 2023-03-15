@@ -23,6 +23,8 @@ public:
     */
     void calculate(const float& input, float& output) override;
 
+	Effect* clone() override {return new Delay(*this);}
+
     /*sets the delay time
     delay: delay value either in samples or milliseconds
     samples: if true sets the delay time in samples

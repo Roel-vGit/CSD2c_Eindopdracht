@@ -18,6 +18,8 @@ class Flanger : public Effect {
         //Outputs the flanger effect
         void calculate(const float& input, float& output) override;
 
+		Effect* clone() override {return new Flanger(*this);}
+
         /*set depth of the flanger. This is the size of the delay.
         Typical flanger values are between 2 - 5 milliseconds.*/
         void setDepth(float depth);

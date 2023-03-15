@@ -16,6 +16,8 @@ class Chorus : public Effect {
         //calculate the chorus effect
         void calculate(const float& input, float& output) override;
 
+		Effect* clone() override {return new Chorus(*this);}
+
         //sets the feedback of the delay line
         void setFeedback(float feedback);
         

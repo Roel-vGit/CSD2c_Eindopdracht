@@ -43,7 +43,7 @@ void CircBuffer<dataType, headType>::setSize(uint size)
         else
             std::copy(buffer, buffer+currentSize, newBuffer);
 
-        delete[] buffer; //delete old buf
+//        delete[] buffer; //delete old buf
         buffer = newBuffer; //set new buffer to the buffer we will be using
         currentSize = size;
     }

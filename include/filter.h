@@ -28,12 +28,14 @@ class Filter : public Effect {
 class Lowpass : public Filter {
     public:
         void calculate(const float& input, float& output) override;
+		Effect* clone() override {return new Lowpass(*this);}
 
 };
 
 class Highpass : public Filter {
     public:
         void calculate(const float& input, float& output) override;
+		Effect* clone() override {return new Highpass(*this);}
 
 };
 
@@ -43,6 +45,8 @@ class Allpass : public Filter {
         void prepareToPlay(int samplerate) override;
 
         void calculate(const float& input, float& output) override;
+
+		Effect* clone() override {return new Allpass(*this);}
 
         /*Sets the allpass filter coefficients and delay
         gain: filter coefficient (value between 0.0f and 1.0f)

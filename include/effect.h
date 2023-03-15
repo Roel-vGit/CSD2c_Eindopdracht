@@ -17,6 +17,8 @@ public:
 //	Prepare function to load the sampleRate.
 	virtual void prepareToPlay (int sampleRate);
 
+	virtual Effect* clone() = 0;
+
 //	calculate the effect (needs to be overridden).
 	virtual void calculate(const float& input, float& output) = 0;
 
