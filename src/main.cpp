@@ -14,156 +14,89 @@
 #include "../include/rack.h"
 #include <array>
 
-int outputs_ = 2;
-// Effect Chain = [WaveShaper, Decorrelator, Chorus, Flanger, Reverb, Panner, Amp];
-int waveshaper = 0;
-int decorrelator = 1;
-int chorus = 2;
-int flanger = 3;
-int reverb = 4;
-//int panner = 5;
-
 class Callback : public AudioCallback {
     public:
         void prepare(int sampleRate) override
         {
-//			Initializing the amount of panners based on the number of outputs.
-			for(int i = 0; i < outputs_; i++){
-				float increment = 360.0f / outputs_; //	set angle increment
-				if (outputs_ == 2) increment = 90;
-				else if (outputs_ == 3) increment = 45;
-				float angle = 135 - increment * i;
-				if (outputs_ == 1) angle = 90;
-				if (angle < 0) angle += 360; else if (angle > 360) angle -= 360; //wrap angle
-
-				panner.push_back(new Panner()); //create a new panning effect for every output
-				std::cout << "Speaker angle: " << angle << std::endl;
-				panner[i]->setPolarPosition(1.0f, angle, true);
-			}
-
-//			Array containing all effect pointers.
-			std::array<Effect*, 5> effects_ = {new WaveShaper, new Decorrelator, new Chorus, new Flanger, new Reverb};
-
-//			Ranged based for loop to add all the effects to the rack.
-			for (auto & effect : effects_){
-				rack.addEffect(effect);
-			}
-
-//			Range based for loop to iterate over the rack.bank and prepare all the effects.
-			for (auto & effects : rack.bank){
-				int counter = 0;
-				for(auto & instances : effects){
-//					Setting sampleRate for all effects.
-					instances->prepareToPlay(sampleRate);
-					std::cout << counter << " ";
-					std::cout << instances->getType() << ": " << instances->getSampleRate() << "\n";
-					counter++;
-
-//					Type checker to set specific parameters for each effect.
-					if (instances->getType() == "WaveShaper"){
-//						Cast the Effect pointer in a subclass Pointer to call the subclass specific member functions.
-						auto* waveshaper = dynamic_cast<WaveShaper*>(instances);
-						waveshaper->setDrive(4.0f);
-						waveshaper->setDryWet(0.0f);
-					}
-					if (instances->getType() == "Decorrelator"){
-						auto* decorrelator = dynamic_cast<Decorrelator*>(instances);
-						decorrelator->setDryWet(0.0f);
-					}
-					if (instances->getType() == "Chorus"){
-						auto* chorus = dynamic_cast<Chorus*>(instances);
-						chorus->setDryWet(0.0f);
-					}
-					if (instances->getType() == "Flanger"){
-						auto* flanger = dynamic_cast<Flanger*>(instances);
-						flanger->setDryWet(0.0f);
-					}
-					if (instances->getType() == "Reverb"){
-						auto* reverb = dynamic_cast<Reverb*>(instances);
-						reverb->setDryWet(1.0f);
-					}
-
-				}
-			}
+            for (int i = 0; i < 2; i++)
+            {   
+                flangers[i].prepareToPlay(sampleRate);
+                flangers[i].setDryWet(0.5f);
+                chorus[i].prepareToPlay(sampleRate);
+                chorus[i].setDryWet(0.5f);
+                chorus[i].setType("Chorus");
+                decorrelators[i].prepareToPlay(sampleRate);
+                decorrelators[i].setDryWet(1.0f);
+                decorrelators[i].setType("Decorrelator");
+                speaker[i].prepareToPlay(sampleRate);
+                speaker[i+2].prepareToPlay(sampleRate);
+                reverbs[i].prepareToPlay(sampleRate);
+                reverbs[i].setDryWet(1.0f);
+                delays[i].prepareToPlay(sampleRate);
+                // delays[i].setMaxDelay(sampleRate);
+                delays[i].setDelayTime(200.0f);
+                delays[i].setFeedback(0.5f);
+                delays[i].setDryWet(1.0f);
+            }
+                //set the speaker positions
+                speaker[0].setPolarPosition(1.0f, 135, true);
+                speaker[1].setPolarPosition(1.0f, 45, true);
+                speaker[2].setPolarPosition(1.0f, 315, true);
+                speaker[3].setPolarPosition(1.0f, 225, true);
         }
            
 
         void process(AudioBuffer buffer) override
         {
-
-
             auto [inputChannels, outputChannels, numInputChannels, numOutputChannels, numFrames] = buffer;
             for (int channel = 0u; channel < numOutputChannels; ++channel) {  
                 for (int sample = 0u; sample < numFrames; ++sample)
                 {   
-                    //Test tone.
-                    sines[channel].tick();
-					outputChannels[channel][sample] = sines[channel].getSample();
-//					To use and effect type:
-//						" rack.bank["effect"	][channel]->process(outputChannels[channel][sample], outputChannels[channel][sample]); "
+                    //test tone
+                    saws[channel].tick();
 
-
-					rack.bank[waveshaper][channel]->process(outputChannels[channel][sample], outputChannels[channel][sample]);
-
-					for (int i = 0; i < rack.bank.size(); i++){
-						rack.bank[i][channel]->process(outputChannels[channel][sample], outputChannels[channel][sample]);
-					}
-
-//					Maybe faster implementation.
-//					for (auto & effect : rack.bank){
-//						effect[channel]->process(outputChannels[channel][sample], outputChannels[channel][sample]);
-//					}
-
-//					std::cout << outputChannels[channel][sample];
-					/*
                     //make the audio source circle
                     source.setPolarPosition(1.0f, angle);
                     angle += 0.0001f;
                     if (angle > 6.28f)
                         angle -= 6.28f;
 
-                    // //calculate amplitude and delay per panner based on source position
-                    panner[channel].calcAmplitude(source);
-                    panner[channel].calcDelay(source);
-                    // source.calcSpeed();
-                    // flangers[channel].setDryWet(abs(source.getSpeed()*10));
-                    // std::cout << "Speed: " << source.getSpeed() << std::endl;
+                    // //calculate amplitude and delay per speaker based on source position
+                    speaker[channel].calcAmplitude(source);
+                    speaker[channel].calcDelay(source);
 
                     //calculate the effects
-
-
                     flangers[channel].process(saws[channel].getSample(), outputChannels[channel][sample]);
                     // chorus[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
                     decorrelators[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
                     
                     //apply panning
-                    panner[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
+                    speaker[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
                     
                     //apply reverb (do this after panning so the reverb does not get panned)
                     // reverbs[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
-
-                    */
 
 
                 }
             }
         }
 
-//		Initiate the effect rack.
-		Rack rack {Rack(outputs_)};
-    	std::array<Sine, 2> sines { Sine(400, 0.5f), Sine(400, 0.5f) };
-    	std::array<Sawtooth, 2> saws { Sawtooth(300, 0.5f), Sawtooth(300, 0.5f) };
-//		initiate the Panner vector.
-		std::vector<Panner*> panner;
-    	Object source { Object() };
+
+    std::array<Sine, 2> sines { Sine(400, 0.5f), Sine(400, 0.5f) };
+    std::array<Sawtooth, 2> saws { Sawtooth(300, 0.5f), Sawtooth(300, 0.5f) };
+    std::array<Chorus, 2> chorus { Chorus(0.35f, 1.0f, 10), Chorus(0.4f, 1.2f, 15, 0.5f) } ;
+    std::array<Decorrelator, 2> decorrelators { Decorrelator(), Decorrelator() };
+    std::array<Delay, 2> delays { Delay(), Delay() };
+    std::array<Flanger, 2> flangers { Flanger(), Flanger() };
+    std::array<Reverb, 2> reverbs { Reverb(), Reverb() };
+    std::array<Panner, 4> speaker { Panner(), Panner(), Panner(), Panner() };
+    Object source { Object() };
+    float angle = { 0.0f };
+    std::array<WaveShaper, 2> waveShapers { WaveShaper(4.0f), WaveShaper(4.0f) };
 };
 
 
 int main() {
-//	std::cout << "How many outputs?\n";
-//	std::cin >> outputs_;
-
-
 
     auto callback = Callback {};
     auto jack = JackModule (callback);
@@ -179,39 +112,31 @@ int main() {
                 break;
             case 'd':
                 float dryWet;
-                std::cout << "Enter dry wet: "; std::cin >> dryWet;
-
+                std::cout << "Enter dry wet: ";
+                std::cin >> dryWet;
+                callback.reverbs[0].setDryWet(dryWet);
+                callback.reverbs[1].setDryWet(dryWet);
+                std::cout << "chorus L:" << callback.chorus[0].getDryWet() << std::endl;
+                std::cout << "chorus R:" << callback.chorus[0].getDryWet() << std::endl;
                 continue;
             case 'b':
                 bool bypass;
-                std::cout << "Enter dry wet: "; std::cin >> bypass;
-
+                std::cout << "Enter bypass: ";
+                std::cin >> bypass;
+                callback.chorus[0].setBypass(bypass);
+                callback.chorus[1].setBypass(bypass);
+                callback.flangers[0].setBypass(bypass);
+                callback.flangers[1].setBypass(bypass);
+                callback.decorrelators[0].setBypass(bypass);
+                callback.decorrelators[1].setBypass(bypass);
                 continue;
             case 's':
                 float amp;
-                std::cout << "Enter saw amp: "; std::cin >> amp;
+                std::cout << "Enter saw amp: ";
+                std::cin >> amp;
                 callback.saws[0].setAmplitude(amp);
                 callback.saws[1].setAmplitude(amp);
-
-				continue;
-			case ',':
-				int channel;
-				std::cout << "What channel do you want to see?\n"; std::cin >> channel;
-
-				for (auto & effect : callback.rack.bank) {
-					int counter = 0;
-					for (auto & instances : effect){
-						if (counter == channel){
-							std::cout << instances->getType() << ", ";
-							std::cout << "DryWet: " << instances->getDryWet() << " ";
-//							std::cout << "SampleRate: " << instances->getSampleRate();
-							std::cout << std::endl;
-						}
-
-					counter++;
-					}
-				}
-        }
+        }   
 
     }
 
