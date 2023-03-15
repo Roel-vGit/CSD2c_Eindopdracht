@@ -9,8 +9,6 @@ Filter::~Filter() {};
 void Filter::prepareToPlay(int samplerate)
 {
     this->sampleRate = samplerate;
-    circBuf.setSize(samplerate);
-    filterBuf.setSize(samplerate);
 }
 
 void Filter::setCutoff(float cutoff)
@@ -35,6 +33,13 @@ void Highpass::calculate(const float& input, float& output)
     output1 += cutoff * (input - output1);
     output2 += cutoff * (output1 - output2); 
     output = input - output2; //subtract original signal from lowpass signal to get highpass signal
+}
+
+void Allpass::prepareToPlay(int samplerate)
+{
+    this->sampleRate = samplerate;
+    circBuf.setSize(samplerate);
+    filterBuf.setSize(samplerate);
 }
 
 void Allpass::calculate(const float& input, float& output)
@@ -74,7 +79,7 @@ void Decorrelator::calculate(const float& input, float& output)
 {
     output = input;
     for (Allpass& filter : filters)
-        filter.calculate(output, output);
+        filter.process(output, output);
 }
 
 void Decorrelator::setCoefficients(float maxFeedback, float maxDelay)

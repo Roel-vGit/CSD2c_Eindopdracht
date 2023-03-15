@@ -1,4 +1,5 @@
-#include "../libs/Util.h"
+#include "../libs/util.h"
+#include <iostream>
 
 namespace Util
 {
@@ -19,6 +20,8 @@ namespace Util
 
     int random(int maxValue)
     {
+        if (maxValue <= 0)
+            return 0;
         std::srand(clock());
         int randomInt = rand() % maxValue;
         return randomInt;
@@ -59,7 +62,7 @@ namespace Util
         return degrees * (pi/180.0f);
     }
         
-    float msToSamples(float ms, int sampleRate)
+    int msToSamples(float ms, int sampleRate)
     {
         return (ms/1000.0f) * sampleRate;
     }

@@ -9,6 +9,8 @@
 #include "../include/chorus.h"
 #include "../include/decorrelator.h"
 #include "../include/waveshaper.h"
+#include "../include/flanger.h"
+#include "../include/reverb.h"
 #include <array>
 
 class Callback : public AudioCallback {
@@ -16,20 +18,30 @@ class Callback : public AudioCallback {
         void prepare(int sampleRate) override
         {
             for (int i = 0; i < 2; i++)
-            {
+            {   
+                flangers[i].prepareToPlay(sampleRate);
+                flangers[i].setDryWet(0.5f);
                 chorus[i].prepareToPlay(sampleRate);
-                chorus[i].setDryWet(0.0f);
+                chorus[i].setDryWet(0.5f);
                 chorus[i].setType("Chorus");
                 decorrelators[i].prepareToPlay(sampleRate);
                 decorrelators[i].setDryWet(1.0f);
                 decorrelators[i].setType("Decorrelator");
-                speaker[i].prepareToPlay(sampleRate);
+                panner[i].prepareToPlay(sampleRate);
+                panner[i+2].prepareToPlay(sampleRate);
+                reverbs[i].prepareToPlay(sampleRate);
+                reverbs[i].setDryWet(1.0f);
+                delays[i].prepareToPlay(sampleRate);
+                // delays[i].setMaxDelay(sampleRate);
+                delays[i].setDelayTime(200.0f);
+                delays[i].setFeedback(0.5f);
+                delays[i].setDryWet(1.0f);
             }
-                //set the speaker positions
-                speaker[0].setPolarPosition(1.0f, 135, true);
-                speaker[1].setPolarPosition(1.0f, 45, true);
-                speaker[2].setPolarPosition(1.0f, 315, true);
-                speaker[3].setPolarPosition(1.0f, 225, true);
+                //set the panner positions
+                panner[0].setPolarPosition(1.0f, 135, true);
+                panner[1].setPolarPosition(1.0f, 45, true);
+                panner[2].setPolarPosition(1.0f, 315, true);
+                panner[3].setPolarPosition(1.0f, 225, true);
         }
            
 
@@ -38,7 +50,7 @@ class Callback : public AudioCallback {
             auto [inputChannels, outputChannels, numInputChannels, numOutputChannels, numFrames] = buffer;
             for (int channel = 0u; channel < numOutputChannels; ++channel) {  
                 for (int sample = 0u; sample < numFrames; ++sample)
-                {
+                {   
                     //test tone
                     saws[channel].tick();
 
@@ -47,38 +59,39 @@ class Callback : public AudioCallback {
                     angle += 0.0001f;
                     if (angle > 6.28f)
                         angle -= 6.28f;
-                    // outputChannels[channel][sample] = sines[channel].getSample();
-//                    allpass[channel].process(saws[channel].getSample(), outputChannels[channel][sample]);
-					// waveShapers[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
 
-                    //calculate amplitude and delay per speaker based on source position
-                    speaker[channel].calcAmplitude(source);
-                    speaker[channel].calcDelay(source);
-
-                    // decorrelators[channel].setDryWet(abs(cos(angle)));
+                    // //calculate amplitude and delay per panner based on source position
+                    panner[channel].calcAmplitude(source);
+                    panner[channel].calcDelay(source);
 
                     //calculate the effects
-                   decorrelators[channel].process(saws[channel].getSample(), outputChannels[channel][sample]);
-                    // chorus[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
-                    // decorrelators[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
+                    flangers[channel].process(saws[channel].getSample(), outputChannels[channel][sample]);
+                    chorus[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
+                    decorrelators[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
                     
                     //apply panning
-                    speaker[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
+                    panner[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
+                    
+                    //apply reverb (do this after panning so the reverb does not get panned)
+                    reverbs[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
+
+
                 }
             }
         }
 
+
     std::array<Sine, 2> sines { Sine(400, 0.5f), Sine(400, 0.5f) };
-    std::array<Sawtooth, 2> saws { Sawtooth(100, 0.5f), Sawtooth(100, 0.5f) };
+    std::array<Sawtooth, 2> saws { Sawtooth(300, 0.5f), Sawtooth(300, 0.5f) };
     std::array<Chorus, 2> chorus { Chorus(0.35f, 1.0f, 10), Chorus(0.4f, 1.2f, 15, 0.5f) } ;
     std::array<Decorrelator, 2> decorrelators { Decorrelator(), Decorrelator() };
     std::array<Delay, 2> delays { Delay(), Delay() };
-    std::array<Speaker, 4> speaker { Speaker(), Speaker(), Speaker(), Speaker() };
+    std::array<Flanger, 2> flangers { Flanger(), Flanger() };
+    std::array<Reverb, 2> reverbs { Reverb(), Reverb() };
+    std::array<Speaker, 4> panner { Speaker(), Speaker(), Speaker(), Speaker() };
     Object source { Object() };
     float angle = { 0.0f };
     std::array<WaveShaper, 2> waveShapers { WaveShaper(4.0f), WaveShaper(4.0f) };
-
-
 };
 
 
@@ -87,7 +100,7 @@ int main() {
     auto callback = Callback {};
     auto jack = JackModule (callback);
 
-    jack.init(1,2);
+    jack.init(2,2);
 
     bool running = true;
 
@@ -96,55 +109,32 @@ int main() {
             case 'q':
                 running = false;
                 break;
-            case 'w':
+            case 'd':
                 float dryWet;
                 std::cout << "Enter dry wet: ";
                 std::cin >> dryWet;
-				/*
-				for (int i = 0; i < 3; i++){
-					callback.chorus[i].setDryWet(dryWet);
-					std::cout << callback.chorus[i].getDryWet() << std::endl;
-				}
-				 */
-
-
-                for (Chorus& chorus : callback.chorus)
-                {
-                    chorus.setDryWet(dryWet);
-
-                }
-
+                callback.reverbs[0].setDryWet(dryWet);
+                callback.reverbs[1].setDryWet(dryWet);
+                std::cout << "chorus L:" << callback.chorus[0].getDryWet() << std::endl;
+                std::cout << "chorus R:" << callback.chorus[0].getDryWet() << std::endl;
                 continue;
-            case 'a':
-                float gain;
-                float dly;
-                std::cout << "Enter gain: ";
-                std::cin >> gain;
-                std::cout << std::endl << "Enter delay: ";
-                std::cin >> dly;
-                for (Decorrelator& decorrelator : callback.decorrelators)
-                {
-                    decorrelator.changeCoefficients(gain, dly);
-                }
+            case 'b':
+                bool bypass;
+                std::cout << "Enter dry wet: ";
+                std::cin >> bypass;
+                callback.chorus[0].setBypass(bypass);
+                callback.chorus[1].setBypass(bypass);
+                callback.flangers[0].setBypass(bypass);
+                callback.flangers[1].setBypass(bypass);
+                callback.decorrelators[0].setBypass(bypass);
+                callback.decorrelators[1].setBypass(bypass);
                 continue;
-            case 'd':
-                float dw;
-                std::cout << std::endl << "Enter drywet: ";
-                std::cin >> dw;
-                for (Chorus& chorus : callback.chorus)
-                {
-                    chorus.setDryWet(dw);
-                }
-                continue;
-            case 'e':
-                float dwe;
-                std::cout << std::endl << "Enter drywet: ";
-                std::cin >> dw;
-                for (Decorrelator& allpass : callback.decorrelators)
-                {
-                    allpass.setDryWet(dwe);
-                }
-                continue;
+            case 's':
+                float amp;
+                std::cout << "Enter saw amp: ";
+                std::cin >> amp;
+                callback.saws[0].setAmplitude(amp);
+                callback.saws[1].setAmplitude(amp);
         }   
 
     }

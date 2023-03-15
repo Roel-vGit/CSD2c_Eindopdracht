@@ -13,17 +13,13 @@ class Filter : public Effect {
         ~Filter();
 
         //initialize delay buffers
-        void prepareToPlay(int samplerate) override;
+        virtual void prepareToPlay(int samplerate) override;
 
         /*Sets the cutoff frequency of the lowpass and highpass filters
         cutoff: cutoff frequency in Hz */
         void setCutoff(float cutoff);
 
     protected:
-
-        CircBuffer<float, uint> circBuf = { CircBuffer<float, uint>(48000) }; //delay buffer for allpass input X[n-d]
-        CircBuffer<float, uint> filterBuf = { CircBuffer<float, uint>(48000) }; //delay buffer for allpass output (Y[n-d])
-
         float cutoff;
         float output1 { 0.0f }; //1 sample delay
         float output2; // 2 sample delay
@@ -43,6 +39,9 @@ class Highpass : public Filter {
 
 class Allpass : public Filter {
     public:
+
+        void prepareToPlay(int samplerate) override;
+
         void calculate(const float& input, float& output) override;
 
         /*Sets the allpass filter coefficients and delay
@@ -55,7 +54,9 @@ class Allpass : public Filter {
 
         //returns the feedback (coefficient) of the allpass
         float getAllpassFeedback() const;
-    
+        
+        CircBuffer<float, uint> circBuf = { CircBuffer<float, uint>(48000) }; //delay buffer for allpass input X[n-d]
+        CircBuffer<float, uint> filterBuf = { CircBuffer<float, uint>(48000) }; //delay buffer for allpass output (Y[n-d])
         float allpassFeedback { 0.2f };
         float allpassDelay { 5 };
         float gainFactor { 1.0f };
@@ -78,6 +79,5 @@ class Decorrelator : public Effect {
         void changeCoefficients(float gainFactor, float delayFactor);
     
     private:
-        Allpass filters[10];
+        Allpass filters[5];
 };
-
