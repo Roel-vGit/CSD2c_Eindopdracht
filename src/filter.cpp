@@ -1,7 +1,9 @@
 #include "../include/filter.h"
 #include "circularBuffer.cpp"
 
-Filter::Filter() {};
+Filter::Filter() {
+	this->type = "Filter";
+};
 
 Filter::~Filter() {};
 

@@ -21,35 +21,53 @@ class Callback : public AudioCallback {
         void prepare(int sampleRate) override
         {
 			//			Initializing the amount of panners based on the number of outputs.
-			for(int i = 0; i < 2; i++){
-				float increment = 360.0f / 2;
-				float angle = 135 - increment * i;
+			for(int i = 0; i < outputs_; i++){
+				float increment = 360.0f / outputs_;
+				float angle = 135 - (increment * i);
 				if (angle < 0) angle += 360; else if (angle > 360) angle -= 360;
 				panner.push_back(new Panner());
 				std::cout << "Angle: " << angle << std::endl;
 				panner[i]->setPolarPosition(1.0f, angle, true);
 			}
 
-			std::vector<Effect*> effects_ = {new WaveShaper(), new Decorrelator(), new Chorus(), new Flanger(), new Reverb()};
+//			Vector with object pointers.
 			for (auto & effect : effects_){
 				rack.addEffect(effect->clone());
 			}
 
+//			Nested ranged based for loop to iterate through the bank.
 			for (auto & effects : rack.bank){
 				int counter_ = 0;
 				for( auto & instances : effects){
+//					Print all the added effects.
 					std::cout << counter_ << " " << instances->getType() << " ";
 					instances->prepareToPlay(sampleRate);
 
+//					Type checker to set the parameters of the effects.
 					if (instances->getType() == "WaveShaper"){
+//						Downcast the pointer to the WaveShaper class to acces member functions.
 						WaveShaper* ws = dynamic_cast<WaveShaper*>(instances);
-						ws->setDryWet(1.0f);
+						ws->setDryWet(0.0f);
 						ws->setDrive(8.0f);
 					}
+					if (instances->getType() == "Decorrelator"){
+						Decorrelator* dc = dynamic_cast<Decorrelator*>(instances);
+						dc->setDryWet(0.0f);
+					}
 					if (instances->getType() == "Chorus"){
-						float phaseStep = counter_ *  (1.0f / outputs_);
+//						Make the LFO phase step.
+						float phaseStep = counter_ *  (0.0f / outputs_);
 						Chorus* chrs = dynamic_cast<Chorus*>(instances);
+						chrs->setDryWet(0.0f);
 						chrs->setLFOPhase(phaseStep);
+					}
+					if (instances->getType() == "Flanger"){
+						Flanger* fl = dynamic_cast<Flanger*>(instances);
+						fl->setDryWet(0.0f);
+					}
+					if (instances->getType() == "Reverb"){
+						Reverb* rv = dynamic_cast<Reverb*>(instances);
+						rv->setDryWet(0.0f);
 					}
 					counter_++;
 				}
@@ -72,26 +90,30 @@ class Callback : public AudioCallback {
                 {   
                     //test tone
                     saws[channel].tick();
+//					Set the inital input to the output.
 					outputChannels[channel][sample] = saws[channel].getSample();
-					rack.bank[0][channel]->process(outputChannels[channel][sample], outputChannels[channel][sample]);
-					rack.bank[4][channel]->process(outputChannels[channel][sample], outputChannels[channel][sample]);
+
+//					For loop to process all the effects.
+					for (int i = 0; i < effects_.size(); i++){
+						rack.bank[i][channel]->process(outputChannels[channel][sample], outputChannels[channel][sample]);
+					}
+
 
                 }
             }
         }
 
-
 		Rack rack {Rack(outputs_)};
+	std::vector<Effect*> effects_ = {new WaveShaper(), new Decorrelator(), new Chorus(), new Flanger(), new Reverb()};
+	std::vector<Panner*> panner;
     std::array<Sine, 2> sines { Sine(400, 0.5f), Sine(400, 0.5f) };
     std::array<Sawtooth, 2> saws { Sawtooth(300, 0.5f), Sawtooth(300, 0.5f) };
-    std::array<Panner, 2> panner { Panner(), Panner() };
     Object joystick1 { Object() };
 	Object joystick2 { Object() };
 	Object touchpad1 { Object() };
 	Object touchpad2 { Object() };
     float angle = { 0.0f };
 	float angleStep { 0.0001f };
-//    std::array<WaveShaper, 2> waveShapers { WaveShaper(4.0f), WaveShaper(4.0f) };
 };
 
 

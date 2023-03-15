@@ -41,6 +41,9 @@ class Highpass : public Filter {
 
 class Allpass : public Filter {
     public:
+		Allpass(){this->type = "Allpass";}
+		~Allpass(){};
+
 
         void prepareToPlay(int samplerate) override;
 
