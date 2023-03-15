@@ -14,31 +14,36 @@
 #include "../include/rack.h"
 #include <array>
 
+int outputs_ = 2;
+
 class Callback : public AudioCallback {
     public:
         void prepare(int sampleRate) override
         {
-			std::vector<Effect*> effects_ = {new Chorus()};
+			std::vector<Effect*> effects_ = {new WaveShaper(), new Chorus()};
 			for (auto & effect : effects_){
 				rack.addEffect(effect->clone());
 			}
 
 			for (auto & effects : rack.bank){
+				int counter_ = 0;
 				for( auto & instances : effects){
-					std::cout << instances->getType() << " ";
+					std::cout << counter_ << " " << instances->getType() << " ";
+					instances->prepareToPlay(sampleRate);
+					if (instances->getType() == "WaveShaper"){
+						WaveShaper* ws = dynamic_cast<WaveShaper*>(instances);
+						ws->setDryWet(1.0f);
+						ws->setDrive(8.0f);
+					}
+					if (instances->getType() == "Chorus"){
+						float phaseStep = counter_ *  (1.0f / outputs_);
+						std::cout << "phaseStep: " << phaseStep << std::endl;
+						Chorus* chrs = dynamic_cast<Chorus*>(instances);
+						chrs->setLFOPhase(phaseStep);
+					}
+					counter_++;
 				}
 			}
-			Chorus* chorus1ptr = dynamic_cast<Chorus*>(rack.bank[0][0]);
-			Chorus* chorus2ptr = dynamic_cast<Chorus*>(rack.bank[0][1]);
-			rack.bank[0][0]->prepareToPlay(sampleRate);
-			rack.bank[0][1]->prepareToPlay(sampleRate);
-			chorus1ptr->setLFOPhase(0.0f);
-			chorus2ptr->setLFOPhase(0.5f);
-
-			std::cout << rack.bank[0][0] << std::endl;
-			std::cout << rack.bank[0][1] << std::endl;
-
-//			for
 ////                set the speaker positions
 //                speaker[0].setPolarPosition(1.0f, 135, true);
 //                speaker[1].setPolarPosition(1.0f, 45, true);
@@ -59,6 +64,7 @@ class Callback : public AudioCallback {
                     saws[channel].tick();
 					outputChannels[channel][sample] = saws[channel].getSample();
 					rack.bank[0][channel]->process(outputChannels[channel][sample], outputChannels[channel][sample]);
+					rack.bank[1][channel]->process(outputChannels[channel][sample], outputChannels[channel][sample]);
 
                 }
             }

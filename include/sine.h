@@ -13,5 +13,7 @@ class Sine : public Oscillator
     Sine(float frequency, float amplitude) : Oscillator(frequency, amplitude) {};
     ~Sine() {};
 
+//	float getPhase() { return phase; }
+
     void calculate() { sample = sin(pi * 2 * phase) * amplitude; };
 };

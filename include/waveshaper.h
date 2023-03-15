@@ -16,6 +16,7 @@ struct WaveShaper : public Effect {
 	~WaveShaper();
 
 	void calculate(const float& input, float& output) override;
+	Effect* clone() override {return new WaveShaper(*this);}
 
 	void setDrive(float k);
 

@@ -31,6 +31,7 @@ class Chorus : public Effect {
         /*sets the phase of the LFO modulating the delay
         function can be used to offset the LFO */
         void setLFOPhase(float phase);
+//		float getLFOPhase() { return lfo.getPhase(); }
 
     private:
         float rate { 2.0f };
