@@ -17,6 +17,7 @@ class Oscillator {
         float getAmplitude();
         float getSample();
         float getSampleRate();
+		float getPhase() { return phase; }
         void setSamplerate(float samplerate);
         void setPhase(float phase);
 

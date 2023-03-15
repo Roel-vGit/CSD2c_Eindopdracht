@@ -2,6 +2,9 @@
 
 Chorus::Chorus() {
 	this->type = "Chorus";
+	setFeedback(0.5f);
+	setLFOPhase(0.0f);
+	setRate(0.5f);
 };
 
 Chorus::Chorus(float feedback, float rate, float depth, float phase)

@@ -28,7 +28,8 @@ class Callback : public AudioCallback {
         void prepare(int sampleRate) override
         {
 			for(int i = 0; i < 2; i++){
-				chorus__[i].prepareToPlay(sampleRate);
+				chorus_[i].prepareToPlay(sampleRate);
+				chorus_[i].setDryWet(1.0f);
 			}
 //			Initializing the amount of panners based on the number of outputs.
 			for(int i = 0; i < outputs_; i++){
@@ -41,7 +42,7 @@ class Callback : public AudioCallback {
 			}
 
 //			Array containing all effect pointers.
-			std::array<Effect*, 5> effects_ = {new WaveShaper, new Decorrelator, new Chorus, new Flanger, new Reverb};
+			std::vector<Effect*> effects_ = {new WaveShaper(), new Decorrelator(), new Chorus(), new Flanger(), new Reverb()};
 
 //			Ranged based for loop to add all the effects to the rack.
 			for (auto & effect : effects_){
@@ -55,53 +56,78 @@ class Callback : public AudioCallback {
 //					Setting sampleRate for all effects.
 					instances->prepareToPlay(sampleRate);
 					std::cout << counter << " ";
-					std::cout << instances->getType() << ": " << instances->getSampleRate() << "\n";
-					counter++;
+					std::cout << instances->getType() << ": " << instances->getSampleRate()
+					<< "\n";
 
 //					Type checker to set specific parameters for each effect.
 					if (instances->getType() == "WaveShaper"){
 //						Cast the Effect pointer in a subclass Pointer to call the subclass specific member functions.
-						auto* waveshaper = dynamic_cast<WaveShaper*>(instances);
-						waveshaper->setDrive(4.0f);
-						waveshaper->setDryWet(1.0f);
+						auto* pWaveShaper = dynamic_cast<WaveShaper*>(instances);
+						pWaveShaper->setDrive(10.0f);
+						pWaveShaper->setDryWet(0.0f);
+
 					}
 					if (instances->getType() == "Decorrelator"){
-						auto* decorrelator = dynamic_cast<Decorrelator*>(instances);
-						decorrelator->setDryWet(1.0f);
+						auto* pDecorrelator = dynamic_cast<Decorrelator*>(instances);
+						pDecorrelator->setDryWet(1.0f);
 					}
 					if (instances->getType() == "Chorus"){
-						auto* chorus = dynamic_cast<Chorus*>(instances);
-						chorus->setDryWet(1.0f);
+						auto* pChorus = dynamic_cast<Chorus*>(instances);
+						pChorus->setDryWet(1.0f);
+						pChorus->setFeedback(0.5f);
+						pChorus->setRate(0.5f);
+						pChorus->setDepth(0.5f);
+						pChorus->setLFOPhase(0 + (0.5f * counter));
 					}
 					if (instances->getType() == "Flanger"){
-						auto* flanger = dynamic_cast<Flanger*>(instances);
-						flanger->setDryWet(1.0f);
+						auto* pFlanger = dynamic_cast<Flanger*>(instances);
+						pFlanger->setDryWet(1.0f);
 					}
 					if (instances->getType() == "Reverb"){
-						auto* reverb = dynamic_cast<Reverb*>(instances);
-						reverb->setDryWet(1.0f);
+						auto* pReverb = dynamic_cast<Reverb*>(instances);
+						pReverb->setDryWet(1.0f);
 					}
+					counter++;
+
 
 				}
+			}
+
+			int counter_ = 0;
+			for (auto instance : rack.bank[chorus]){
+				auto* pChorus = dynamic_cast<Chorus*>(instance);
+				std::cout  << pChorus->getType() << " " << counter_ << std::endl;
+				std::cout << "	SampleRate:	" << pChorus->getSampleRate() << std::endl;
+				std::cout << "	Rate: 		" << pChorus->getRate() << std::endl;
+				std::cout << "	Depth: 		" << pChorus->getDepth() << std::endl;
+				std::cout << "	DelayTime: 	"<< pChorus->getDelayTime() << std::endl;
+				std::cout << "	Phase: 		"<< pChorus->getPhase() << std::endl;
+				counter_++;
 			}
         }
            
 
         void process(AudioBuffer buffer) override
         {
-
-
             auto [inputChannels, outputChannels, numInputChannels, numOutputChannels, numFrames] = buffer;
-            for (int channel = 0u; channel < numOutputChannels; ++channel) {  
+            for (int channel = 0; channel < numOutputChannels; channel++) {
                 for (int sample = 0u; sample < numFrames; ++sample)
-                {   
+				{
+
                     //Test tone.
-                    sines[channel].tick();
-					outputChannels[channel][sample] = sines[channel].getSample();
+                    saws[channel].tick();
+					outputChannels[channel][sample] = saws[channel].getSample();
+					if (channel == 0){
+						std::cout << "Channel: " << channel << " Sample: " << sample << std::endl;
+					}
+					chorus_[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
 //					To use and effect type:
 //						" rack.bank["effect"	][channel]->process(outputChannels[channel][sample], outputChannels[channel][sample]); "
 //						rack.bank[flanger][channel]->process(outputChannels[channel][sample], outputChannels[channel][sample]);
-						rack.bank[chorus][channel]->process(outputChannels[channel][sample], outputChannels[channel][sample]);
+						rack.bank[2][channel]->process(saws[channel].getSample(), outputChannels[channel][sample]);
+						std::cout << rack.bank[2][channel]->getType() << std::endl;
+						std::cout << rack.bank[3][channel]->getType() << std::endl;
+
 
 //					rack.bank[waveshaper][channel]->process(outputChannels[channel][sample], outputChannels[channel][sample]);
 //
@@ -143,6 +169,7 @@ class Callback : public AudioCallback {
 
 
                 }
+				channel++;
             }
         }
 
@@ -150,7 +177,7 @@ class Callback : public AudioCallback {
 		Rack rack {Rack(outputs_)};
     	std::array<Sine, 2> sines { Sine(400, 0.5f), Sine(400, 0.5f) };
     	std::array<Sawtooth, 2> saws { Sawtooth(300, 0.5f), Sawtooth(300, 0.5f) };
-		std::array<Chorus, 2> chorus__ { Chorus(0.5f, 0.5f, 0.5f, 0.5f), Chorus(0.5f, 0.5f, 0.5f, 0.5f) };
+		std::array<Chorus, 2> chorus_ { Chorus(0.5f, 0.5f, 1.0f, 0.0f), Chorus(0.5f, 0.5f, 1.0f, 0.5f) };
 //		initiate the Panner vector.
 		std::vector<Panner*> panner;
     	Object source { Object() };
