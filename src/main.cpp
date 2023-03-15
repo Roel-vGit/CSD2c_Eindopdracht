@@ -29,11 +29,15 @@ class Callback : public AudioCallback {
         {
 //			Initializing the amount of panners based on the number of outputs.
 			for(int i = 0; i < outputs_; i++){
-				float increment = 360.0f / outputs_;
+				float increment = 360.0f / outputs_; //	set angle increment
+				if (outputs_ == 2) increment = 90;
+				else if (outputs_ == 3) increment = 45;
 				float angle = 135 - increment * i;
-				if (angle < 0) angle += 360; else if (angle > 360) angle -= 360;
-				panner.push_back(new Panner());
-				std::cout << "Angle: " << angle << std::endl;
+				if (outputs_ == 1) angle = 90;
+				if (angle < 0) angle += 360; else if (angle > 360) angle -= 360; //wrap angle
+
+				panner.push_back(new Panner()); //create a new panning effect for every output
+				std::cout << "Speaker angle: " << angle << std::endl;
 				panner[i]->setPolarPosition(1.0f, angle, true);
 			}
 
@@ -76,7 +80,7 @@ class Callback : public AudioCallback {
 					}
 					if (instances->getType() == "Reverb"){
 						auto* reverb = dynamic_cast<Reverb*>(instances);
-						reverb->setDryWet(0.0f);
+						reverb->setDryWet(1.0f);
 					}
 
 				}
