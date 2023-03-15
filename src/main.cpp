@@ -100,7 +100,7 @@ int main() {
     auto callback = Callback {};
     auto jack = JackModule (callback);
 
-    jack.init(2,2);
+    jack.init(1,2);
 
     bool running = true;
 
