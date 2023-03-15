@@ -12,10 +12,9 @@
 #include "../include/flanger.h"
 #include "../include/reverb.h"
 #include "../include/rack.h"
-
 #include <array>
-#include <vector>
 
+int outputs_;
 int delay = 0;
 int allpass = 1;
 int chorus = 2;
@@ -43,15 +42,22 @@ class Callback : public AudioCallback {
 					counter++;
 
 //					Type checker to set specific parameters for each effect.
-					if(instances->getType() == "Chorus"){
+					if(instances->getType() == "Delay"){
 						instances->setDryWet(1.0f);
+					}
+					if (instances->getType() == "Allpass"){
+						instances->setDryWet(0.5f);
+					}
+					if (instances->getType() == "Chorus"){
+						instances->setDryWet(0.7f);
 					}
 					if (instances->getType() == "WaveShaper"){
+						instances->setDryWet(0.3f);
+					}
+					if (instances->getType() == "Reverb"){
 						instances->setDryWet(1.0f);
 					}
-					if (instances->getType() == "Decorrelator"){
-						instances->setDryWet(1.0f);
-					}
+
 				}
 			}
 
@@ -95,11 +101,12 @@ class Callback : public AudioCallback {
                     //test tone
                     saws[channel].tick();
 					outputChannels[channel][sample] = saws[channel].getSample();
-					rack.bank[delay][channel]->process(outputChannels[channel][sample], outputChannels[channel][sample]);
-					rack.bank[allpass][channel]->process(outputChannels[channel][sample], outputChannels[channel][sample]);
-					rack.bank[chorus][channel]->process(outputChannels[channel][sample], outputChannels[channel][sample]);
-					rack.bank[waveshaper][channel]->process(outputChannels[channel][sample], outputChannels[channel][sample]);
-					rack.bank[reverb][channel]->process(outputChannels[channel][sample], outputChannels[channel][sample]);
+
+//					rack.bank[delay		][channel]->process(outputChannels[channel][sample], outputChannels[channel][sample]);
+//					rack.bank[allpass	][channel]->process(outputChannels[channel][sample], outputChannels[channel][sample]);
+//					rack.bank[chorus	][channel]->process(outputChannels[channel][sample], outputChannels[channel][sample]);
+//					rack.bank[waveshaper][channel]->process(outputChannels[channel][sample], outputChannels[channel][sample]);
+//					rack.bank[reverb	][channel]->process(outputChannels[channel][sample], outputChannels[channel][sample]);
 
 
 					/*
@@ -131,7 +138,7 @@ class Callback : public AudioCallback {
             }
         }
 
-		Rack rack {Rack(3)};
+		Rack rack {Rack(outputs_)};
 
     	std::array<Sine, 2> sines { Sine(400, 0.5f), Sine(400, 0.5f) };
     	std::array<Sawtooth, 2> saws { Sawtooth(300, 0.5f), Sawtooth(300, 0.5f) };
@@ -148,6 +155,9 @@ class Callback : public AudioCallback {
 
 
 int main() {
+	std::cout << "How many outputs?\n";
+	std::cin >> outputs_;
+
 
 
     auto callback = Callback {};
@@ -164,28 +174,25 @@ int main() {
                 break;
             case 'd':
                 float dryWet;
-                std::cout << "Enter dry wet: ";
-                std::cin >> dryWet;
+                std::cout << "Enter dry wet: "; std::cin >> dryWet;
 
                 continue;
             case 'b':
                 bool bypass;
-                std::cout << "Enter dry wet: ";
-                std::cin >> bypass;
+                std::cout << "Enter dry wet: "; std::cin >> bypass;
 
                 continue;
             case 's':
                 float amp;
-                std::cout << "Enter saw amp: ";
-                std::cin >> amp;
+                std::cout << "Enter saw amp: "; std::cin >> amp;
                 callback.saws[0].setAmplitude(amp);
                 callback.saws[1].setAmplitude(amp);
 
 				continue;
 			case ',':
 				int channel;
-				std::cout << "What channel do you want to see?\n";
-				std::cin >> channel;
+				std::cout << "What channel do you want to see?\n"; std::cin >> channel;
+
 				for (auto & effect : callback.rack.bank) {
 					int counter = 0;
 					for (auto & instances : effect){
@@ -195,9 +202,10 @@ int main() {
 							std::cout << "SampleRate: " << instances->getSampleRate();
 							std::cout << std::endl;
 						}
-						counter++;
+					counter++;
 					}
 				}
+
 
 
         }

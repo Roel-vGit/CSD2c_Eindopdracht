@@ -2,7 +2,6 @@
 
 Chorus::Chorus() {
 	this->type = "Chorus";
-
 };
 
 Chorus::Chorus(float feedback, float rate, float depth, float phase)
