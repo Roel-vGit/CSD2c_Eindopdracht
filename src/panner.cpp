@@ -57,7 +57,7 @@ float Object::getSpeed()
 
 Speaker::Speaker()
 {
-
+	this->type = "Speaker";
 }
 
 Speaker::~Speaker()

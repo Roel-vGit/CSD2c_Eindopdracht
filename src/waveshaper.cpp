@@ -6,6 +6,7 @@
 
 // Default constructor.
 WaveShaper::WaveShaper(float k) {
+	this->type = "WaveShaper";
 	this->k = k;
 	bufferSize = 2048;
 	buffer = new float[bufferSize];

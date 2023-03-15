@@ -1,9 +1,13 @@
 #include "../include/chorus.h"
 
-Chorus::Chorus() {};
+Chorus::Chorus() {
+	this->type = "Chorus";
+
+};
 
 Chorus::Chorus(float feedback, float rate, float depth, float phase)
 {
+	this->type = "Chorus";
     setFeedback(feedback);
     setRate(rate);
     setDepth(depth);
