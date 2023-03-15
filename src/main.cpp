@@ -27,6 +27,9 @@ class Callback : public AudioCallback {
     public:
         void prepare(int sampleRate) override
         {
+			for(int i = 0; i < 2; i++){
+				chorus__[i].prepareToPlay(sampleRate);
+			}
 //			Initializing the amount of panners based on the number of outputs.
 			for(int i = 0; i < outputs_; i++){
 				float increment = 360.0f / outputs_;
@@ -60,23 +63,23 @@ class Callback : public AudioCallback {
 //						Cast the Effect pointer in a subclass Pointer to call the subclass specific member functions.
 						auto* waveshaper = dynamic_cast<WaveShaper*>(instances);
 						waveshaper->setDrive(4.0f);
-						waveshaper->setDryWet(0.0f);
+						waveshaper->setDryWet(1.0f);
 					}
 					if (instances->getType() == "Decorrelator"){
 						auto* decorrelator = dynamic_cast<Decorrelator*>(instances);
-						decorrelator->setDryWet(0.0f);
+						decorrelator->setDryWet(1.0f);
 					}
 					if (instances->getType() == "Chorus"){
 						auto* chorus = dynamic_cast<Chorus*>(instances);
-						chorus->setDryWet(0.0f);
+						chorus->setDryWet(1.0f);
 					}
 					if (instances->getType() == "Flanger"){
 						auto* flanger = dynamic_cast<Flanger*>(instances);
-						flanger->setDryWet(0.0f);
+						flanger->setDryWet(1.0f);
 					}
 					if (instances->getType() == "Reverb"){
 						auto* reverb = dynamic_cast<Reverb*>(instances);
-						reverb->setDryWet(0.0f);
+						reverb->setDryWet(1.0f);
 					}
 
 				}
@@ -97,13 +100,14 @@ class Callback : public AudioCallback {
 					outputChannels[channel][sample] = sines[channel].getSample();
 //					To use and effect type:
 //						" rack.bank["effect"	][channel]->process(outputChannels[channel][sample], outputChannels[channel][sample]); "
+//						rack.bank[flanger][channel]->process(outputChannels[channel][sample], outputChannels[channel][sample]);
+						rack.bank[chorus][channel]->process(outputChannels[channel][sample], outputChannels[channel][sample]);
 
-
-					rack.bank[waveshaper][channel]->process(outputChannels[channel][sample], outputChannels[channel][sample]);
-
-					for (int i = 0; i < rack.bank.size(); i++){
-						rack.bank[i][channel]->process(outputChannels[channel][sample], outputChannels[channel][sample]);
-					}
+//					rack.bank[waveshaper][channel]->process(outputChannels[channel][sample], outputChannels[channel][sample]);
+//
+//					for (int i = 0; i < rack.bank.size(); i++){
+//						rack.bank[i][channel]->process(outputChannels[channel][sample], outputChannels[channel][sample]);
+//					}
 
 //					Maybe faster implementation.
 //					for (auto & effect : rack.bank){
@@ -146,6 +150,7 @@ class Callback : public AudioCallback {
 		Rack rack {Rack(outputs_)};
     	std::array<Sine, 2> sines { Sine(400, 0.5f), Sine(400, 0.5f) };
     	std::array<Sawtooth, 2> saws { Sawtooth(300, 0.5f), Sawtooth(300, 0.5f) };
+		std::array<Chorus, 2> chorus__ { Chorus(0.5f, 0.5f, 0.5f, 0.5f), Chorus(0.5f, 0.5f, 0.5f, 0.5f) };
 //		initiate the Panner vector.
 		std::vector<Panner*> panner;
     	Object source { Object() };
@@ -200,7 +205,6 @@ int main() {
 //							std::cout << "SampleRate: " << instances->getSampleRate();
 							std::cout << std::endl;
 						}
-
 					counter++;
 					}
 				}
