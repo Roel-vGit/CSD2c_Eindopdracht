@@ -14,13 +14,13 @@
 #include "../include/rack.h"
 #include <array>
 
-int outputs_ = 2;
+int outputs_ = 4;
 
 class Callback : public AudioCallback {
     public:
         void prepare(int sampleRate) override
         {
-			std::vector<Effect*> effects_ = {new WaveShaper(), new Chorus()};
+			std::vector<Effect*> effects_ = {new WaveShaper(), new Decorrelator(), new Chorus(), new Flanger(), new Reverb()};
 			for (auto & effect : effects_){
 				rack.addEffect(effect->clone());
 			}
@@ -30,6 +30,7 @@ class Callback : public AudioCallback {
 				for( auto & instances : effects){
 					std::cout << counter_ << " " << instances->getType() << " ";
 					instances->prepareToPlay(sampleRate);
+
 					if (instances->getType() == "WaveShaper"){
 						WaveShaper* ws = dynamic_cast<WaveShaper*>(instances);
 						ws->setDryWet(1.0f);
@@ -37,7 +38,6 @@ class Callback : public AudioCallback {
 					}
 					if (instances->getType() == "Chorus"){
 						float phaseStep = counter_ *  (1.0f / outputs_);
-						std::cout << "phaseStep: " << phaseStep << std::endl;
 						Chorus* chrs = dynamic_cast<Chorus*>(instances);
 						chrs->setLFOPhase(phaseStep);
 					}
@@ -64,21 +64,17 @@ class Callback : public AudioCallback {
                     saws[channel].tick();
 					outputChannels[channel][sample] = saws[channel].getSample();
 					rack.bank[0][channel]->process(outputChannels[channel][sample], outputChannels[channel][sample]);
-					rack.bank[1][channel]->process(outputChannels[channel][sample], outputChannels[channel][sample]);
+					rack.bank[4][channel]->process(outputChannels[channel][sample], outputChannels[channel][sample]);
 
                 }
             }
         }
 
 
-		Rack rack {Rack(2)};
+		Rack rack {Rack(outputs_)};
     std::array<Sine, 2> sines { Sine(400, 0.5f), Sine(400, 0.5f) };
     std::array<Sawtooth, 2> saws { Sawtooth(300, 0.5f), Sawtooth(300, 0.5f) };
-//    std::array<Chorus, 2> chorus { Chorus(0.35f, 1.0f, 10), Chorus(0.4f, 1.2f, 15, 0.5f) } ;
-//    std::array<Decorrelator, 2> decorrelators { Decorrelator(), Decorrelator() };
-//    std::array<Flanger, 2> flangers { Flanger(), Flanger() };
-//    std::array<Reverb, 2> reverbs { Reverb(), Reverb() };
-//    std::array<Panner, 2> speaker { Panner(), Panner() };
+    std::array<Panner, 2> panner { Panner(), Panner() };
     Object joystick1 { Object() };
 	Object joystick2 { Object() };
 	Object touchpad1 { Object() };

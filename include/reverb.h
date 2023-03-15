@@ -17,6 +17,8 @@ class Reverb : public Effect {
     output: output sample to write to*/
     void calculate(const float& input, float& output) override;
 
+	Effect* clone() override {return new Reverb(*this);}
+
     /*sets the decay of the reverb
     decay: value between 0.0f and 0.999f.*/
     void setDecay(float decay);

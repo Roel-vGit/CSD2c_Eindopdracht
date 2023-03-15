@@ -75,6 +75,9 @@ class Panner : public Effect, public Object {
         Calculate the amplitude and delay time first using the calcAmplitude() and calcDelay() functions*/
         void calculate(const float& input, float& output) override;
 
+		/*Returns a pointer to a new Panner object*/
+		Effect* clone() override {return new Panner(*this);}
+
         /*Calculates the distance between a source and a speaker and returns the gain
         of the speaker for that source position.
         source: the audio source object */
