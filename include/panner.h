@@ -27,10 +27,18 @@ struct Object {
         Degrees: set to true to enter angle in degrees
         */
         void setPolarPosition(float radius, float angle, bool degrees = false);
-
+        
+        //returns the x-coordinate of an object
         float getX() const;
+
+        //returns the y-coordinate of an object
         float getY() const;
-        float getAngle() const;
+
+        /*returns the angle of an object
+        Default is radians, set degrees to true to get angle in degrees*/
+        float getAngle(bool degrees = false) const;
+
+        //returns the radius of an object
         float getRadius() const;
 
         //Returns the speed (movement) of an object. Call the calcSpeed() function first.
@@ -41,10 +49,10 @@ struct Object {
 
         private:
         
-        float xPos { 0.0f };
+        float xPos { 1.0f };
         float yPos { 0.0f };
         float radius { 1.0f };
-        float angle { 90.0f };
+        float angle { 0.0f };
         float speed { 0.0f };
         float sum { 0.0 };
 };
@@ -80,10 +88,13 @@ class Panner : public Effect, public Object {
         source: the audio source object */
         float getDistance(const Object& source) const;
 
+        //returns the delay time of a speaker
+        float getDelay() const;
+
         float amplitude { 1.0f };
         float delayTime { 0.0f };
         float soundRadius { 1.8f };
-        float maxDelay { 1.0 };
+        float maxDelay { 1.0f };
 
         Delay delay { Delay(10.0f, 0.0f) };
 };

@@ -21,12 +21,12 @@
 
     }
 
-    //Initialize delay buffer to 2 seconds and delay time to 0 ms (no delay)*/
+    //Initialize delay buffer size to 1 second and delay time to 0 ms (no delay)*/
     void Delay::prepareToPlay (int sampleRate)
     {
         this->sampleRate = sampleRate;
         circBuf.setSize(sampleRate);
-        setDelayTime(200.0f);
+        setDelayTime(0.0f);
     }
 
     /*outputs the delayed signal
@@ -36,8 +36,8 @@
     void Delay::calculate(const float& input, float& output)
     {
         circBuf.writeSample(input + feedback * circBuf.readSample(delayTime));
-        circBuf.incrementWrite();
         output = circBuf.readSample(delayTime);
+        circBuf.incrementWrite();
     }
 
     /*sets the delay time
@@ -47,10 +47,9 @@
     void Delay::setDelayTime(float delay, bool samples /*= false*/)
     {
         if (!samples)
-            this->delayTime = Util::msToSamples(delay, sampleRate);
+            this->delayTime = Util::msToSamples(delay, sampleRate); //circbuf takes in samples so convert to samples first
         else
             this->delayTime = delay;
-        
     }
 
     //sets the buffer size (max delay)

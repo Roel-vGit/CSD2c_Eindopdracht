@@ -20,6 +20,10 @@ class Decorrelator : public Effect {
         maxDelay: maximum delay in samples. Value between 0 and samplerate */
         void setCoefficients(float maxFeedback, float maxDelay);
 
+
+        /*scales the current delay and gain of the allpass filter
+        gainFactor: value between 0.0 and 1.0
+        delayFactor: value between 0.0 and 1.0 */
         void changeCoefficients(float gainFactor, float delayFactor);
     
     private:

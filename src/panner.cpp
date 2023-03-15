@@ -18,7 +18,14 @@ void Object::setPolarPosition(float radius, float angle, bool degrees /*= false*
 
     if (degrees)
         angle = Util::degreesToRadians(angle);
+
+    if (angle < 0.0f)
+        angle = 2*pi + angle;
+
+    if (angle > pi*2.0f)
+        angle = fmod(angle, 2*pi);
     
+    this->angle = angle;
     this->xPos = Util::calcX(radius, angle);
     this->yPos = Util::calcY(radius, angle);
 }
@@ -33,9 +40,12 @@ float Object::getY() const
     return yPos;
 }
 
-float Object::getAngle() const
+float Object::getAngle(bool degrees) const
 {
-    return angle;
+    if (degrees)
+        return Util::radiansToDegrees(angle);
+    else
+        return angle;
 }
 
 float Object::getRadius() const
@@ -45,13 +55,16 @@ float Object::getRadius() const
 
 float Object::getSpeed()
 {
-    return speed;
+    if (speed < 0.0f)
+        return speed * -1.0f;
+    else
+        return speed;
 }
 
 void Object::calcSpeed()
 {
-    speed = (xPos + yPos)*1000.0f - sum;
-    sum = (xPos + yPos) * 1000.0f;
+    speed = (xPos + yPos)*5000.0f - sum;
+    sum = (xPos + yPos) * 5000.0f;
 }
 
 
@@ -95,7 +108,7 @@ void Panner::calcDelay(const Object& source)
     if (delayValue < 0.0001f)
         delayValue = 0.0f;
     this->delayTime = delayValue * maxDelay;
-    delay.setDelayTime(this->delayTime);
+    delay.setDelayTime(delayTime);
 }
 
 float Panner::getDistance(const Object& source) const
@@ -103,3 +116,7 @@ float Panner::getDistance(const Object& source) const
     return Util::calcRadius(getX() - source.getX(), getY() - source.getY());
 }
 
+float Panner::getDelay() const
+{
+    return this->delayTime;
+}

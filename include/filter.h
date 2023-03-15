@@ -55,8 +55,8 @@ class Allpass : public Filter {
         //returns the feedback (coefficient) of the allpass
         float getAllpassFeedback() const;
         
-        CircBuffer<float, uint> circBuf = { CircBuffer<float, uint>(48000) }; //delay buffer for allpass input X[n-d]
-        CircBuffer<float, uint> filterBuf = { CircBuffer<float, uint>(48000) }; //delay buffer for allpass output (Y[n-d])
+        CircBuffer<float, float> circBuf = { CircBuffer<float, float>(48000) }; //delay buffer for allpass input X[n-d]
+        CircBuffer<float, float> filterBuf = { CircBuffer<float, float>(48000) }; //delay buffer for allpass output (Y[n-d])
         float allpassFeedback { 0.2f };
         float allpassDelay { 5 };
         float gainFactor { 1.0f };

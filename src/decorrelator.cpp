@@ -40,7 +40,14 @@ void Decorrelator::setCoefficients(float maxFeedback, float maxDelay)
 }
 
 void Decorrelator::changeCoefficients(float gainFactor, float delayFactor)
-{
+{   
+
+    if (gainFactor > 1.0f) gainFactor = 1.0f;
+    else if (gainFactor < 0.0f) gainFactor = 0.0f;
+
+    if (delayFactor > 1.0f) delayFactor = 1.0f;
+    else if (delayFactor < 0.0f) delayFactor = 0.0f;
+
     for (Allpass& filter : filters)
     {
         filter.gainFactor = gainFactor;

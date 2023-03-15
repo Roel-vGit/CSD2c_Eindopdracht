@@ -29,20 +29,19 @@ class Callback : public AudioCallback {
                 decorrelators[i].setDryWet(1.0f);
                 decorrelators[i].setType("Decorrelator");
                 speaker[i].prepareToPlay(sampleRate);
-                speaker[i+2].prepareToPlay(sampleRate);
                 reverbs[i].prepareToPlay(sampleRate);
                 reverbs[i].setDryWet(1.0f);
-                delays[i].prepareToPlay(sampleRate);
-                // delays[i].setMaxDelay(sampleRate);
-                delays[i].setDelayTime(200.0f);
-                delays[i].setFeedback(0.5f);
-                delays[i].setDryWet(1.0f);
             }
                 //set the speaker positions
                 speaker[0].setPolarPosition(1.0f, 135, true);
                 speaker[1].setPolarPosition(1.0f, 45, true);
                 speaker[2].setPolarPosition(1.0f, 315, true);
                 speaker[3].setPolarPosition(1.0f, 225, true);
+
+				angleStep = 0.0001f;
+
+				// touchpad2.setCartesianPosition(1.0f, 0.0f);
+				// std::cout << "Angle: " << touchpad2.getAngle() << std::endl;
         }
            
 
@@ -56,25 +55,44 @@ class Callback : public AudioCallback {
                     saws[channel].tick();
 
                     //make the audio source circle
-                    source.setPolarPosition(1.0f, angle);
-                    angle += 0.0001f;
-                    if (angle > 6.28f)
-                        angle -= 6.28f;
+                    joystick1.setPolarPosition(1.0f, angle);
+					joystick2.setPolarPosition(1.0f, angle);
+					touchpad1.setPolarPosition(1.0f, angle);
+					touchpad2.setPolarPosition(1.0f, angle * -1.0f);
+					angle += angleStep;
 
-                    // //calculate amplitude and delay per speaker based on source position
-                    speaker[channel].calcAmplitude(source);
-                    speaker[channel].calcDelay(source);
+					joystick1.calcSpeed();
+					joystick2.calcSpeed();
+
+					// flanging based on movement of the joysticks
+					flangers[channel].setDryWet(joystick1.getSpeed() + joystick2.getSpeed());
+
+                    //chorus based on radius of touchPad and depth based on angle
+					chorus[channel].setDryWet(touchpad1.getRadius());
+                    chorus[channel].setDepth(touchpad1.getAngle(true) / 3.6f);
+
+                    //decorrelator based on radius of touchpad2
+					decorrelators[channel].setDryWet(touchpad2.getRadius());
+
+                    //reverb parameters
+                    reverbs[channel].setDamping(1.0f - touchpad2.getRadius());
+                    reverbs[channel].setDecay(touchpad1.getAngle(true) / 360.0f);
+                    reverbs[channel].setDryWet(touchpad2.getRadius());
 
                     //calculate the effects
                     flangers[channel].process(saws[channel].getSample(), outputChannels[channel][sample]);
-                    // chorus[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
-                    decorrelators[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
+                    chorus[channel].process(saws[channel].getSample(), outputChannels[channel][sample]);
+                    decorrelators[channel].process(saws[channel].getSample(), outputChannels[channel][sample]);
                     
+					// //calculate amplitude and delay per speaker based on joystick1 position
+                    speaker[channel].calcAmplitude(joystick1);
+                    speaker[channel].calcDelay(joystick2);
+
                     //apply panning
                     speaker[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
                     
                     //apply reverb (do this after panning so the reverb does not get panned)
-                    // reverbs[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
+                    reverbs[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
 
 
                 }
@@ -86,12 +104,15 @@ class Callback : public AudioCallback {
     std::array<Sawtooth, 2> saws { Sawtooth(300, 0.5f), Sawtooth(300, 0.5f) };
     std::array<Chorus, 2> chorus { Chorus(0.35f, 1.0f, 10), Chorus(0.4f, 1.2f, 15, 0.5f) } ;
     std::array<Decorrelator, 2> decorrelators { Decorrelator(), Decorrelator() };
-    std::array<Delay, 2> delays { Delay(), Delay() };
     std::array<Flanger, 2> flangers { Flanger(), Flanger() };
     std::array<Reverb, 2> reverbs { Reverb(), Reverb() };
-    std::array<Panner, 4> speaker { Panner(), Panner(), Panner(), Panner() };
-    Object source { Object() };
+    std::array<Panner, 2> speaker { Panner(), Panner() };
+    Object joystick1 { Object() };
+	Object joystick2 { Object() };
+	Object touchpad1 { Object() };
+	Object touchpad2 { Object() };
     float angle = { 0.0f };
+	float angleStep { 0.0001f };
     std::array<WaveShaper, 2> waveShapers { WaveShaper(4.0f), WaveShaper(4.0f) };
 };
 
@@ -101,7 +122,7 @@ int main() {
     auto callback = Callback {};
     auto jack = JackModule (callback);
 
-    jack.init(1,2);
+    jack.init(2,2);
 
     bool running = true;
 
@@ -136,6 +157,18 @@ int main() {
                 std::cin >> amp;
                 callback.saws[0].setAmplitude(amp);
                 callback.saws[1].setAmplitude(amp);
+			case 'y':
+				for (Panner& speaker : callback.speaker)
+				{
+					std::cout << "delay: " << speaker.getDelay() << std::endl;
+					std::cout << "distance: " << speaker.getDistance(callback.joystick1) << std::endl;
+				}
+				continue;
+			case 'p':
+				float speed;
+				std::cout << "Set speed: ";
+				std::cin >> speed;
+				callback.angleStep = speed;
         }   
 
     }

@@ -39,7 +39,11 @@ namespace Util
 
     float calcAngle(float x, float y)
     {
-        return atan2(y,x);
+        float angle = atan2(y,x);
+        if (angle < 0.0f)
+            return 2*pi + angle;
+        else
+            return angle;
     }
 
     float calcX(float radius, float angle)
