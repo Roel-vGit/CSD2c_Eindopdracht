@@ -10,6 +10,7 @@
 using uint = unsigned int;
 
 struct WaveShaper : public Effect {
+	explicit WaveShaper();
 	explicit WaveShaper(float k);
 	explicit WaveShaper(uint size);
 	~WaveShaper();

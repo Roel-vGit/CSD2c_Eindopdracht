@@ -16,20 +16,33 @@
 #include <array>
 #include <vector>
 
+int delay = 0;
+int allpass = 1;
+int chorus = 2;
+int waveshaper = 3;
+int reverb = 4;
+
 class Callback : public AudioCallback {
     public:
         void prepare(int sampleRate) override
         {
-			rack.addEffect(new Chorus);
-			rack.addEffect(new WaveShaper(4.0f));
-			rack.addEffect(new Decorrelator());
+//			Array containing all effect pointers.
+			std::array<Effect*, 5> effects_ = {new Delay, new Allpass, new Chorus, new WaveShaper, new Reverb};
+//			Ranged based for loop to add all the effects to the rack.
+			for (auto & effect : effects_){
+				rack.addEffect(effect);
+			}
+//			Range based for loop to iterate over the rack.bank and prepare all the effects.
 			for (auto & effects : rack.bank){
 				int counter = 0;
 				for( auto & instances : effects){
+//					Setting sampleRate for all effects.
 					instances->prepareToPlay(sampleRate);
 					std::cout << counter << " ";
-					std::cout << instances->getType() << " & " << instances->getSampleRate() << "\n";
+					std::cout << instances->getType() << ": " << instances->getSampleRate() << "\n";
 					counter++;
+
+//					Type checker to set specific parameters for each effect.
 					if(instances->getType() == "Chorus"){
 						instances->setDryWet(1.0f);
 					}
@@ -47,9 +60,9 @@ class Callback : public AudioCallback {
 
 //                flangers[i].prepareToPlay(sampleRate);
 //                flangers[i].setDryWet(0.5f);
-                chorus[i].prepareToPlay(sampleRate);
-                chorus[i].setDryWet(0.5f);
-                chorus[i].setType("Chorus");
+//                chorus[i].prepareToPlay(sampleRate);
+//                chorus[i].setDryWet(0.5f);
+//                chorus[i].setType("Chorus");
 //                decorrelators[i].prepareToPlay(sampleRate);
 //                decorrelators[i].setDryWet(1.0f);
 //                decorrelators[i].setType("Decorrelator");
@@ -73,6 +86,8 @@ class Callback : public AudioCallback {
 
         void process(AudioBuffer buffer) override
         {
+
+
             auto [inputChannels, outputChannels, numInputChannels, numOutputChannels, numFrames] = buffer;
             for (int channel = 0u; channel < numOutputChannels; ++channel) {  
                 for (int sample = 0u; sample < numFrames; ++sample)
@@ -80,12 +95,11 @@ class Callback : public AudioCallback {
                     //test tone
                     saws[channel].tick();
 					outputChannels[channel][sample] = saws[channel].getSample();
-					rack.bank[0][channel]->process(outputChannels[channel][sample], outputChannels[channel][sample]);
-					rack.bank[1][channel]->process(outputChannels[channel][sample], outputChannels[channel][sample]);
-					rack.bank[2][channel]->process(outputChannels[channel][sample], outputChannels[channel][sample]);
-
-
-
+					rack.bank[delay][channel]->process(outputChannels[channel][sample], outputChannels[channel][sample]);
+					rack.bank[allpass][channel]->process(outputChannels[channel][sample], outputChannels[channel][sample]);
+					rack.bank[chorus][channel]->process(outputChannels[channel][sample], outputChannels[channel][sample]);
+					rack.bank[waveshaper][channel]->process(outputChannels[channel][sample], outputChannels[channel][sample]);
+					rack.bank[reverb][channel]->process(outputChannels[channel][sample], outputChannels[channel][sample]);
 
 
 					/*
@@ -121,15 +135,15 @@ class Callback : public AudioCallback {
 
     	std::array<Sine, 2> sines { Sine(400, 0.5f), Sine(400, 0.5f) };
     	std::array<Sawtooth, 2> saws { Sawtooth(300, 0.5f), Sawtooth(300, 0.5f) };
-		std::array<Chorus, 2> chorus { Chorus(0.35f, 1.0f, 10), Chorus(0.4f, 1.2f, 15, 0.5f) } ;
-    	std::array<Decorrelator, 2> decorrelators { Decorrelator(), Decorrelator() };
-    	std::array<Delay, 2> delays { Delay(), Delay() };
+//		std::array<Chorus, 2> chorus { Chorus(0.35f, 1.0f, 10), Chorus(0.4f, 1.2f, 15, 0.5f) } ;
+//    	std::array<Decorrelator, 2> decorrelators { Decorrelator(), Decorrelator() };
+//    	std::array<Delay, 2> delays { Delay(), Delay() };
     	std::array<Flanger, 2> flangers { Flanger(), Flanger() };
-    	std::array<Reverb, 2> reverbs { Reverb(), Reverb() };
+//    	std::array<Reverb, 2> reverbs { Reverb(), Reverb() };
     	std::array<Speaker, 4> panner { Speaker(), Speaker(), Speaker(), Speaker() };
     	Object source { Object() };
     	float angle = { 0.0f };
-    	std::array<WaveShaper, 2> waveShapers { WaveShaper(4.0f), WaveShaper(4.0f) };
+//    	std::array<WaveShaper, 2> waveShapers { WaveShaper(4.0f), WaveShaper(4.0f) };
 };
 
 
@@ -166,7 +180,27 @@ int main() {
                 std::cin >> amp;
                 callback.saws[0].setAmplitude(amp);
                 callback.saws[1].setAmplitude(amp);
-        }   
+
+				continue;
+			case ',':
+				int channel;
+				std::cout << "What channel do you want to see?\n";
+				std::cin >> channel;
+				for (auto & effect : callback.rack.bank) {
+					int counter = 0;
+					for (auto & instances : effect){
+						if (counter == channel){
+							std::cout << instances->getType() << ", ";
+							std::cout << "DryWet: " << instances->getDryWet() << " ";
+							std::cout << "SampleRate: " << instances->getSampleRate();
+							std::cout << std::endl;
+						}
+						counter++;
+					}
+				}
+
+
+        }
 
     }
 

@@ -5,6 +5,16 @@
 #include "waveshaper.h"
 
 // Default constructor.
+WaveShaper::WaveShaper() {
+	this->type = "WaveShaper";
+	this->k = 1;
+	bufferSize = 2048;
+	buffer = new float[bufferSize];
+	setDrive(k);
+
+}
+
+
 WaveShaper::WaveShaper(float k) {
 	this->type = "WaveShaper";
 	this->k = k;
