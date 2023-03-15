@@ -12,6 +12,7 @@
 #include "../include/flanger.h"
 #include "../include/reverb.h"
 #include <array>
+#include <vector>
 
 class Callback : public AudioCallback {
     public:
@@ -53,7 +54,14 @@ class Callback : public AudioCallback {
                 {   
                     //test tone
                     saws[channel].tick();
+					outputChannels[channel][sample] = saws[channel].getSample();
 
+
+
+
+
+
+					/*
                     //make the audio source circle
                     source.setPolarPosition(1.0f, angle);
                     angle += 0.0001f;
@@ -75,23 +83,25 @@ class Callback : public AudioCallback {
                     //apply reverb (do this after panning so the reverb does not get panned)
                     reverbs[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
 
+                    */
+
 
                 }
             }
         }
 
 
-    std::array<Sine, 2> sines { Sine(400, 0.5f), Sine(400, 0.5f) };
-    std::array<Sawtooth, 2> saws { Sawtooth(300, 0.5f), Sawtooth(300, 0.5f) };
-    std::array<Chorus, 2> chorus { Chorus(0.35f, 1.0f, 10), Chorus(0.4f, 1.2f, 15, 0.5f) } ;
-    std::array<Decorrelator, 2> decorrelators { Decorrelator(), Decorrelator() };
-    std::array<Delay, 2> delays { Delay(), Delay() };
-    std::array<Flanger, 2> flangers { Flanger(), Flanger() };
-    std::array<Reverb, 2> reverbs { Reverb(), Reverb() };
-    std::array<Speaker, 4> panner { Speaker(), Speaker(), Speaker(), Speaker() };
-    Object source { Object() };
-    float angle = { 0.0f };
-    std::array<WaveShaper, 2> waveShapers { WaveShaper(4.0f), WaveShaper(4.0f) };
+    	std::array<Sine, 2> sines { Sine(400, 0.5f), Sine(400, 0.5f) };
+    	std::array<Sawtooth, 2> saws { Sawtooth(300, 0.5f), Sawtooth(300, 0.5f) };
+		std::array<Chorus, 2> chorus { Chorus(0.35f, 1.0f, 10), Chorus(0.4f, 1.2f, 15, 0.5f) } ;
+//    	std::array<Decorrelator, 2> decorrelators { Decorrelator(), Decorrelator() };
+//    	std::array<Delay, 2> delays { Delay(), Delay() };
+//    	std::array<Flanger, 2> flangers { Flanger(), Flanger() };
+//    	std::array<Reverb, 2> reverbs { Reverb(), Reverb() };
+//    	std::array<Speaker, 4> panner { Speaker(), Speaker(), Speaker(), Speaker() };
+    	Object source { Object() };
+    	float angle = { 0.0f };
+//    	std::array<WaveShaper, 2> waveShapers { WaveShaper(4.0f), WaveShaper(4.0f) };
 };
 
 
@@ -100,7 +110,7 @@ int main() {
     auto callback = Callback {};
     auto jack = JackModule (callback);
 
-    jack.init(2,2);
+    jack.init(1,2);
 
     bool running = true;
 
@@ -113,21 +123,13 @@ int main() {
                 float dryWet;
                 std::cout << "Enter dry wet: ";
                 std::cin >> dryWet;
-                callback.reverbs[0].setDryWet(dryWet);
-                callback.reverbs[1].setDryWet(dryWet);
-                std::cout << "chorus L:" << callback.chorus[0].getDryWet() << std::endl;
-                std::cout << "chorus R:" << callback.chorus[0].getDryWet() << std::endl;
+
                 continue;
             case 'b':
                 bool bypass;
                 std::cout << "Enter dry wet: ";
                 std::cin >> bypass;
-                callback.chorus[0].setBypass(bypass);
-                callback.chorus[1].setBypass(bypass);
-                callback.flangers[0].setBypass(bypass);
-                callback.flangers[1].setBypass(bypass);
-                callback.decorrelators[0].setBypass(bypass);
-                callback.decorrelators[1].setBypass(bypass);
+
                 continue;
             case 's':
                 float amp;
