@@ -55,33 +55,33 @@ void Object::calcSpeed()
 }
 
 
-//class Speaker
+//class Panner
 //----------------------------------------------------------------------
 
 
-Speaker::Speaker()
+Panner::Panner()
 {
-	this->type = "Speaker";
+	this->type = "Panner";
 }
 
-Speaker::~Speaker()
+Panner::~Panner()
 {
 
 }
 
-void Speaker::prepareToPlay(int sampleRate)
+void Panner::prepareToPlay(int sampleRate)
 {
     this->sampleRate = sampleRate;
     delay.prepareToPlay(sampleRate);
 }
 
-void Speaker::calculate(const float& input, float& output)
+void Panner::calculate(const float& input, float& output)
 {
     delay.calculate(input, output);
     output = output * amplitude;
 }
 
-void Speaker::calcAmplitude(const Object& source)
+void Panner::calcAmplitude(const Object& source)
 {
     float distance = (soundRadius - getDistance(source)) / soundRadius;
     if (distance < 0.0f) 
@@ -89,7 +89,7 @@ void Speaker::calcAmplitude(const Object& source)
     this->amplitude = distance;
 }
 
-void Speaker::calcDelay(const Object& source)
+void Panner::calcDelay(const Object& source)
 {
     float delayValue = getDistance(source) - Util::mapInRange(source.getRadius(), 0.0f, 0.707f, 1.0f, 0.707f);
     if (delayValue < 0.0001f)
@@ -98,7 +98,7 @@ void Speaker::calcDelay(const Object& source)
     delay.setDelayTime(this->delayTime);
 }
 
-float Speaker::getDistance(const Object& source) const
+float Panner::getDistance(const Object& source) const
 {   
     return Util::calcRadius(getX() - source.getX(), getY() - source.getY());
 }
