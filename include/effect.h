@@ -24,13 +24,17 @@ public:
 	void setBypass(bool bypass);
 	void setType(std::string type) { this->type = type; }
 
-	float getDryWet() { return dryWet; }
+	std::string getType(){return this->type;}
+	std::string getSampleRate() { return std::to_string(sampleRate); }
+
+	float getDryWet() { return dryWet;}
+
 
 protected:
 	float input;
 	int sampleRate { 0 };
 	float dryWet = 1.0f;
 	bool bypass = false;
-	std::string type = typeid(*this).name();
+	std::string type;
 	std::string name;
 };

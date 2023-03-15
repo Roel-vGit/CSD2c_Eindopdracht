@@ -11,6 +11,8 @@
 #include "../include/waveshaper.h"
 #include "../include/flanger.h"
 #include "../include/reverb.h"
+#include "../include/rack.h"
+
 #include <array>
 #include <vector>
 
@@ -18,31 +20,54 @@ class Callback : public AudioCallback {
     public:
         void prepare(int sampleRate) override
         {
+			rack.addEffect(new Chorus);
+			rack.addEffect(new WaveShaper(4.0f));
+			rack.addEffect(new Decorrelator());
+			for (auto & effects : rack.bank){
+				int counter = 0;
+				for( auto & instances : effects){
+					instances->prepareToPlay(sampleRate);
+					std::cout << counter << " ";
+					std::cout << instances->getType() << " & " << instances->getSampleRate() << "\n";
+					counter++;
+					if(instances->getType() == "Chorus"){
+						instances->setDryWet(1.0f);
+					}
+					if (instances->getType() == "WaveShaper"){
+						instances->setDryWet(1.0f);
+					}
+					if (instances->getType() == "Decorrelator"){
+						instances->setDryWet(1.0f);
+					}
+				}
+			}
+
             for (int i = 0; i < 2; i++)
-            {   
-                flangers[i].prepareToPlay(sampleRate);
-                flangers[i].setDryWet(0.5f);
+            {
+
+//                flangers[i].prepareToPlay(sampleRate);
+//                flangers[i].setDryWet(0.5f);
                 chorus[i].prepareToPlay(sampleRate);
                 chorus[i].setDryWet(0.5f);
                 chorus[i].setType("Chorus");
-                decorrelators[i].prepareToPlay(sampleRate);
-                decorrelators[i].setDryWet(1.0f);
-                decorrelators[i].setType("Decorrelator");
-                panner[i].prepareToPlay(sampleRate);
-                panner[i+2].prepareToPlay(sampleRate);
-                reverbs[i].prepareToPlay(sampleRate);
-                reverbs[i].setDryWet(1.0f);
-                delays[i].prepareToPlay(sampleRate);
+//                decorrelators[i].prepareToPlay(sampleRate);
+//                decorrelators[i].setDryWet(1.0f);
+//                decorrelators[i].setType("Decorrelator");
+//                panner[i].prepareToPlay(sampleRate);
+//                panner[i+2].prepareToPlay(sampleRate);
+//                reverbs[i].prepareToPlay(sampleRate);
+//                reverbs[i].setDryWet(1.0f);
+//                delays[i].prepareToPlay(sampleRate);
                 // delays[i].setMaxDelay(sampleRate);
-                delays[i].setDelayTime(200.0f);
-                delays[i].setFeedback(0.5f);
-                delays[i].setDryWet(1.0f);
+//                delays[i].setDelayTime(200.0f);
+//                delays[i].setFeedback(0.5f);
+//                delays[i].setDryWet(1.0f);
             }
                 //set the panner positions
-                panner[0].setPolarPosition(1.0f, 135, true);
-                panner[1].setPolarPosition(1.0f, 45, true);
-                panner[2].setPolarPosition(1.0f, 315, true);
-                panner[3].setPolarPosition(1.0f, 225, true);
+//                panner[0].setPolarPosition(1.0f, 135, true);
+//                panner[1].setPolarPosition(1.0f, 45, true);
+//                panner[2].setPolarPosition(1.0f, 315, true);
+//                panner[3].setPolarPosition(1.0f, 225, true);
         }
            
 
@@ -55,7 +80,9 @@ class Callback : public AudioCallback {
                     //test tone
                     saws[channel].tick();
 					outputChannels[channel][sample] = saws[channel].getSample();
-
+					rack.bank[0][channel]->process(outputChannels[channel][sample], outputChannels[channel][sample]);
+					rack.bank[1][channel]->process(outputChannels[channel][sample], outputChannels[channel][sample]);
+					rack.bank[2][channel]->process(outputChannels[channel][sample], outputChannels[channel][sample]);
 
 
 
@@ -90,22 +117,24 @@ class Callback : public AudioCallback {
             }
         }
 
+		Rack rack {Rack(3)};
 
     	std::array<Sine, 2> sines { Sine(400, 0.5f), Sine(400, 0.5f) };
     	std::array<Sawtooth, 2> saws { Sawtooth(300, 0.5f), Sawtooth(300, 0.5f) };
 		std::array<Chorus, 2> chorus { Chorus(0.35f, 1.0f, 10), Chorus(0.4f, 1.2f, 15, 0.5f) } ;
-//    	std::array<Decorrelator, 2> decorrelators { Decorrelator(), Decorrelator() };
-//    	std::array<Delay, 2> delays { Delay(), Delay() };
-//    	std::array<Flanger, 2> flangers { Flanger(), Flanger() };
-//    	std::array<Reverb, 2> reverbs { Reverb(), Reverb() };
-//    	std::array<Speaker, 4> panner { Speaker(), Speaker(), Speaker(), Speaker() };
+    	std::array<Decorrelator, 2> decorrelators { Decorrelator(), Decorrelator() };
+    	std::array<Delay, 2> delays { Delay(), Delay() };
+    	std::array<Flanger, 2> flangers { Flanger(), Flanger() };
+    	std::array<Reverb, 2> reverbs { Reverb(), Reverb() };
+    	std::array<Speaker, 4> panner { Speaker(), Speaker(), Speaker(), Speaker() };
     	Object source { Object() };
     	float angle = { 0.0f };
-//    	std::array<WaveShaper, 2> waveShapers { WaveShaper(4.0f), WaveShaper(4.0f) };
+    	std::array<WaveShaper, 2> waveShapers { WaveShaper(4.0f), WaveShaper(4.0f) };
 };
 
 
 int main() {
+
 
     auto callback = Callback {};
     auto jack = JackModule (callback);
