@@ -48,15 +48,15 @@ struct Object {
 
 //----------------------------------------------------------------------
 
-class Speaker : public Effect, public Object {
+class Panner : public Effect, public Object {
     public:
 
         /*Constructor that constructs the objects and positions them in a circle.
         Also constructs one source which is front centered*/
-        Speaker();
+        Panner();
 
         //Destructor
-        ~Speaker();
+        ~Panner();
 
         void prepareToPlay(int sampleRate) override;
 
