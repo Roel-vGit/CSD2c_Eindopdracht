@@ -20,6 +20,16 @@ class Callback : public AudioCallback {
     public:
         void prepare(int sampleRate) override
         {
+			//			Initializing the amount of panners based on the number of outputs.
+			for(int i = 0; i < 2; i++){
+				float increment = 360.0f / 2;
+				float angle = 135 - increment * i;
+				if (angle < 0) angle += 360; else if (angle > 360) angle -= 360;
+				panner.push_back(new Panner());
+				std::cout << "Angle: " << angle << std::endl;
+				panner[i]->setPolarPosition(1.0f, angle, true);
+			}
+
 			std::vector<Effect*> effects_ = {new WaveShaper(), new Decorrelator(), new Chorus(), new Flanger(), new Reverb()};
 			for (auto & effect : effects_){
 				rack.addEffect(effect->clone());
