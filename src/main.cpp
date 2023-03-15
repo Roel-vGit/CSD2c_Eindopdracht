@@ -63,6 +63,9 @@ class Callback : public AudioCallback {
                     // //calculate amplitude and delay per panner based on source position
                     panner[channel].calcAmplitude(source);
                     panner[channel].calcDelay(source);
+                    // source.calcSpeed();
+                    // flangers[channel].setDryWet(abs(source.getSpeed()*10));
+                    // std::cout << "Speed: " << source.getSpeed() << std::endl;
 
                     //calculate the effects
                     flangers[channel].process(saws[channel].getSample(), outputChannels[channel][sample]);
@@ -81,7 +84,7 @@ class Callback : public AudioCallback {
         }
 
 
-    std::array<Sine, 2> sines { Sine(400, 0.5f), Sine(400, 0.5f) };
+    std::array<Sine, 2> sines { Sine(1000, 0.5f), Sine(1000, 0.5f) };
     std::array<Sawtooth, 2> saws { Sawtooth(300, 0.5f), Sawtooth(300, 0.5f) };
     std::array<Chorus, 2> chorus { Chorus(0.35f, 1.0f, 10), Chorus(0.4f, 1.2f, 15, 0.5f) } ;
     std::array<Decorrelator, 2> decorrelators { Decorrelator(), Decorrelator() };

@@ -45,9 +45,13 @@ float Object::getRadius() const
 
 float Object::getSpeed()
 {
-    speed = (xPos + yPos) - sum;
-    sum = xPos + yPos;
     return speed;
+}
+
+void Object::calcSpeed()
+{
+    speed = (xPos + yPos)*1000.0f - sum;
+    sum = (xPos + yPos) * 1000.0f;
 }
 
 

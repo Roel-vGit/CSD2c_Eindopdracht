@@ -33,8 +33,11 @@ struct Object {
         float getAngle() const;
         float getRadius() const;
 
-        //Returns the speed (movement) of an object.
+        //Returns the speed (movement) of an object. Call the calcSpeed() function first.
         float getSpeed();
+        
+        //calculates the speed of an object. Only call this function once in a callback.
+        void calcSpeed();
 
         private:
         
