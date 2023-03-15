@@ -14,7 +14,7 @@
 #include "../include/rack.h"
 #include <array>
 
-int outputs_;
+int outputs_ = 2;
 // Effect Chain = [WaveShaper, Decorrelator, Chorus, Flanger, Reverb, Panner, Amp];
 int waveshaper = 0;
 int decorrelator = 1;
@@ -59,7 +59,7 @@ class Callback : public AudioCallback {
 					if (instances->getType() == "WaveShaper"){
 //						Cast the Effect pointer in a subclass Pointer to call the subclass specific member functions.
 						auto* waveshaper = dynamic_cast<WaveShaper*>(instances);
-						waveshaper->setDrive(0.0f);
+						waveshaper->setDrive(4.0f);
 						waveshaper->setDryWet(0.0f);
 					}
 					if (instances->getType() == "Decorrelator"){
@@ -93,16 +93,22 @@ class Callback : public AudioCallback {
                 for (int sample = 0u; sample < numFrames; ++sample)
                 {   
                     //Test tone.
-                    saws[channel].tick();
-					outputChannels[channel][sample] = saws[channel].getSample();
-
-
+                    sines[channel].tick();
+					outputChannels[channel][sample] = sines[channel].getSample();
 //					To use and effect type:
-//					rack.bank["effect"	][channel]->process(outputChannels[channel][sample], outputChannels[channel][sample]);
-					for (auto & effect : rack.bank){
-						effect[channel]->process(outputChannels[channel][sample], outputChannels[channel][sample]);
+//						" rack.bank["effect"	][channel]->process(outputChannels[channel][sample], outputChannels[channel][sample]); "
+
+
+					rack.bank[waveshaper][channel]->process(outputChannels[channel][sample], outputChannels[channel][sample]);
+
+					for (int i = 0; i < rack.bank.size(); i++){
+						rack.bank[i][channel]->process(outputChannels[channel][sample], outputChannels[channel][sample]);
 					}
 
+//					Maybe faster implementation.
+//					for (auto & effect : rack.bank){
+//						effect[channel]->process(outputChannels[channel][sample], outputChannels[channel][sample]);
+//					}
 
 //					std::cout << outputChannels[channel][sample];
 					/*
@@ -147,8 +153,8 @@ class Callback : public AudioCallback {
 
 
 int main() {
-	std::cout << "How many outputs?\n";
-	std::cin >> outputs_;
+//	std::cout << "How many outputs?\n";
+//	std::cin >> outputs_;
 
 
 
@@ -198,9 +204,6 @@ int main() {
 					counter++;
 					}
 				}
-
-
-
         }
 
     }
