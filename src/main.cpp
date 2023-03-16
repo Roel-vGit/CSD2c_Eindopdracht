@@ -73,12 +73,6 @@ class Callback : public AudioCallback {
 					counter_++;
 				}
 			}
-////                set the speaker positions
-//                speaker[0].setPolarPosition(1.0f, 135, true);
-//                speaker[1].setPolarPosition(1.0f, 45, true);
-//                speaker[2].setPolarPosition(1.0f, 315, true);
-//                speaker[3].setPolarPosition(1.0f, 225, true);
-
 				angleStep = 0.0001f;
         }
            
@@ -117,7 +111,7 @@ class Callback : public AudioCallback {
 					WaveShaper * ws = dynamic_cast<WaveShaper*>(rack.bank[0][channel]);
 					ws->setDryWet(touchpad1.getRadius());
 
-					//decorrelator based on radius of touchpad2
+//					Decorrelator based on radius of touchpad2
 					Decorrelator * dec = dynamic_cast<Decorrelator*>(rack.bank[1][channel]);
 					dec->setDryWet(touchpad2.getRadius());
 
@@ -142,29 +136,11 @@ class Callback : public AudioCallback {
 						rack.bank[i][channel]->process(outputChannels[channel][sample], outputChannels[channel][sample]);
 					}
 
-					//apply panning
+//					Apply speaker panning.
 					speaker[channel]->process(outputChannels[channel][sample], outputChannels[channel][sample]);
 
-					//apply reverb (do this after panning so the reverb does not get panned)
+//					Apply reverb after panning.
 					rack.bank[4][channel]->process(outputChannels[channel][sample], outputChannels[channel][sample]);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 				}
             }
         }
