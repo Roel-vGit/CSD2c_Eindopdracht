@@ -56,7 +56,7 @@ class Callback : public AudioCallback {
 					}
 					if (instances->getType() == "Chorus"){
 //						Make the LFO phase step.
-						float phaseStep = counter_ *  (0.0f / outputs_);
+						float phaseStep = counter_ *  (1.0f / outputs_);
 						Chorus* chrs = dynamic_cast<Chorus*>(instances);
 						chrs->setDryWet(0.0f);
 						chrs->setLFOPhase(phaseStep);
