@@ -68,7 +68,7 @@ class Callback : public AudioCallback {
                     speaker[channel].calcAmplitude(joystick1);
                     speaker[channel].calcDelay(joystick2);
 
-                    //adjust parameters here (go wild)
+                    //adjust parameters here (TODO: more parameter changes to be added)
                     //-----------------------------------------------------------------------
 
 					// flanging based on movement of the joysticks
