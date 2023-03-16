@@ -99,11 +99,30 @@ class Callback : public AudioCallback {
 					}
 
 
-                }
+					source.setPolarPosition(1.0f, angle);
+					angle += 0.0001f;
+					if (angle > 6.28f)
+						angle -= 6.28f;
+
+					// //calculate amplitude and delay per speaker based on source position
+					panner[channel]->calcAmplitude(source);
+					panner[channel]->calcDelay(source);
+
+					//calculate the effects
+
+					//apply panning
+					panner[channel]->process(outputChannels[channel][sample], outputChannels[channel][sample]);
+
+					//apply reverb (do this after panning so the reverb does not get panned)
+					// reverbs[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
+
+
+
+				}
             }
         }
 
-		Rack rack {Rack(outputs_)};
+	Rack rack {Rack(outputs_)};
 	std::vector<Effect*> effects_ = {new WaveShaper(), new Decorrelator(), new Chorus(), new Flanger(), new Reverb()};
 	std::vector<Panner*> panner;
     std::array<Sine, 2> sines { Sine(400, 0.5f), Sine(400, 0.5f) };
