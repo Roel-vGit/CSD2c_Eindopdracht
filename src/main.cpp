@@ -14,7 +14,7 @@
 #include "../include/rack.h"
 #include <array>
 
-int outputs_ = 4;
+int outputs_ = 2;
 
 class Callback : public AudioCallback {
     public:
@@ -25,9 +25,10 @@ class Callback : public AudioCallback {
 				float increment = 360.0f / outputs_;
 				float angle = 135 - (increment * i);
 				if (angle < 0) angle += 360; else if (angle > 360) angle -= 360;
-				panner.push_back(new Panner());
+				speaker.push_back(new Panner());
 				std::cout << "Angle: " << angle << std::endl;
-				panner[i]->setPolarPosition(1.0f, angle, true);
+				speaker[i]->setPolarPosition(1.0f, angle, true);
+				speaker[i]->prepareToPlay(sampleRate);
 			}
 
 //			Vector with object pointers.
@@ -106,40 +107,46 @@ class Callback : public AudioCallback {
 					joystick2.calcSpeed();
 
 					//calculate amplitude and delay per speaker based on joystick1 position
-					speaker[channel].calcAmplitude(joystick1);
-					speaker[channel].calcDelay(joystick2);
+					speaker[channel]->calcAmplitude(joystick1);
+					speaker[channel]->calcDelay(joystick2);
 
 					//adjust parameters here (go wild)
 					//-----------------------------------------------------------------------
 
-					// flanging based on movement of the joysticks
-					flangers[channel].setDryWet(joystick1.getSpeed() + joystick2.getSpeed());
-
-					//chorus based on radius of touchPad and depth based on angle
-					chorus[channel].setDryWet(touchpad1.getRadius());
-					chorus[channel].setDepth(touchpad1.getAngle(true) / 3.6f);
+//					WaveShaper based on radius of touchpad1
+					WaveShaper * ws = dynamic_cast<WaveShaper*>(rack.bank[0][channel]);
+					ws->setDryWet(touchpad1.getRadius());
 
 					//decorrelator based on radius of touchpad2
-					decorrelators[channel].setDryWet(touchpad2.getRadius());
+					Decorrelator * dec = dynamic_cast<Decorrelator*>(rack.bank[1][channel]);
+					dec->setDryWet(touchpad2.getRadius());
+
+					//chorus based on radius of touchPad and depth based on angle
+					Chorus * chrs = dynamic_cast<Chorus*>(rack.bank[2][channel]);
+					chrs->setDryWet(touchpad1.getRadius());
+					chrs->setDepth(touchpad1.getAngle(true) / 3.6f);
+
+					// flanging based on movement of the joysticks
+					Flanger * flg = dynamic_cast<Flanger*>(rack.bank[3][channel]);
+					flg->setDryWet(joystick1.getSpeed() + joystick2.getSpeed());
 
 					//reverb parameters
-					reverbs[channel].setDamping(1.0f - touchpad2.getRadius());
-					reverbs[channel].setDecay(touchpad1.getAngle(true) / 360.0f);
-					reverbs[channel].setDryWet(touchpad2.getRadius());
+					Reverb * rev = dynamic_cast<Reverb*>(rack.bank[4][channel]);
+					rev->setDecay(touchpad1.getAngle(true) / 360.0f);
+					rev->setDamping(1.0f - touchpad2.getRadius());
+					rev->setDryWet(touchpad2.getRadius());
 
 					//calculate the effects
-					//-----------------------------------------------------------------------
 //					For loop to process all the effects in the rack. - 1 because the last effect is the reverb.
 					for (int i = 0; i < effects_.size() - 1; i++){
 						rack.bank[i][channel]->process(outputChannels[channel][sample], outputChannels[channel][sample]);
 					}
 
 					//apply panning
-					speaker[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
+					speaker[channel]->process(outputChannels[channel][sample], outputChannels[channel][sample]);
 
 					//apply reverb (do this after panning so the reverb does not get panned)
 					rack.bank[4][channel]->process(outputChannels[channel][sample], outputChannels[channel][sample]);
-//					reverbs[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
 
 
 
