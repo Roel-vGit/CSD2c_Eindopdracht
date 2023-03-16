@@ -88,33 +88,73 @@ class Callback : public AudioCallback {
             for (int channel = 0u; channel < numOutputChannels; ++channel) {  
                 for (int sample = 0u; sample < numFrames; ++sample)
                 {   
-                    //test tone
-                    saws[channel].tick();
 //					Set the inital input to the output.
+                    saws[channel].tick();
 					outputChannels[channel][sample] = saws[channel].getSample();
 
-//					For loop to process all the effects.
-					for (int i = 0; i < effects_.size(); i++){
+					//receive the controller values here (do this in auxilliary task in Bela)
+					//-----------------------------------------------------------------------
+
+					//make the audio source circle
+					joystick1.setPolarPosition(1.0f, angle);
+					joystick2.setPolarPosition(1.0f, angle);
+					touchpad1.setPolarPosition(1.0f, angle);
+					touchpad2.setPolarPosition(1.0f, angle * -1.0f);
+					angle += angleStep;
+
+					joystick1.calcSpeed();
+					joystick2.calcSpeed();
+
+					//calculate amplitude and delay per speaker based on joystick1 position
+					speaker[channel].calcAmplitude(joystick1);
+					speaker[channel].calcDelay(joystick2);
+
+					//adjust parameters here (go wild)
+					//-----------------------------------------------------------------------
+
+					// flanging based on movement of the joysticks
+					flangers[channel].setDryWet(joystick1.getSpeed() + joystick2.getSpeed());
+
+					//chorus based on radius of touchPad and depth based on angle
+					chorus[channel].setDryWet(touchpad1.getRadius());
+					chorus[channel].setDepth(touchpad1.getAngle(true) / 3.6f);
+
+					//decorrelator based on radius of touchpad2
+					decorrelators[channel].setDryWet(touchpad2.getRadius());
+
+					//reverb parameters
+					reverbs[channel].setDamping(1.0f - touchpad2.getRadius());
+					reverbs[channel].setDecay(touchpad1.getAngle(true) / 360.0f);
+					reverbs[channel].setDryWet(touchpad2.getRadius());
+
+					//calculate the effects
+					//-----------------------------------------------------------------------
+//					For loop to process all the effects in the rack. - 1 because the last effect is the reverb.
+					for (int i = 0; i < effects_.size() - 1; i++){
 						rack.bank[i][channel]->process(outputChannels[channel][sample], outputChannels[channel][sample]);
 					}
 
-
-					source.setPolarPosition(1.0f, angle);
-					angle += 0.0001f;
-					if (angle > 6.28f)
-						angle -= 6.28f;
-
-					// //calculate amplitude and delay per speaker based on source position
-					panner[channel]->calcAmplitude(source);
-					panner[channel]->calcDelay(source);
-
-					//calculate the effects
-
 					//apply panning
-					panner[channel]->process(outputChannels[channel][sample], outputChannels[channel][sample]);
+					speaker[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
 
 					//apply reverb (do this after panning so the reverb does not get panned)
-					// reverbs[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
+					rack.bank[4][channel]->process(outputChannels[channel][sample], outputChannels[channel][sample]);
+//					reverbs[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -124,7 +164,7 @@ class Callback : public AudioCallback {
 
 	Rack rack {Rack(outputs_)};
 	std::vector<Effect*> effects_ = {new WaveShaper(), new Decorrelator(), new Chorus(), new Flanger(), new Reverb()};
-	std::vector<Panner*> panner;
+	std::vector<Panner*> speaker = {new Panner(), new Panner(), new Panner(), new Panner()};
     std::array<Sine, 2> sines { Sine(400, 0.5f), Sine(400, 0.5f) };
     std::array<Sawtooth, 2> saws { Sawtooth(300, 0.5f), Sawtooth(300, 0.5f) };
     Object joystick1 { Object() };
