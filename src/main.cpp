@@ -18,7 +18,7 @@ class Callback : public AudioCallback {
     public:
         void prepare(int sampleRate) override
         {
-            for (int i = 0; i < 2; i++)
+            for (int i = 0; i < numOutputs; i++)
             {   
                 flangers[i].prepareToPlay(sampleRate);
                 flangers[i].setDryWet(0.5f);
@@ -56,8 +56,8 @@ class Callback : public AudioCallback {
                     //-----------------------------------------------------------------------
 
                     //make the audio source circle
-                    joystick1.setPolarPosition(1.0f, angle);
-					joystick2.setPolarPosition(1.0f, angle);
+                    joystick1.setPolarPosition(1.0f, 45, true);
+					joystick2.setPolarPosition(1.0f, 45, true);
 					touchpad1.setPolarPosition(1.0f, angle);
 					touchpad2.setPolarPosition(1.0f, angle * -1.0f);
 					angle += angleStep;
@@ -93,28 +93,30 @@ class Callback : public AudioCallback {
 
                     // flangers[channel].process(saws[channel].getSample(), outputChannels[channel][sample]);
                     // chorus[channel].process(saws[channel].getSample(), outputChannels[channel][sample]);
-                    decorrelators[channel].process(saws[channel].getSample(), outputChannels[channel][sample]);
-                    sample1 = outputChannels[channel][sample];
+                    // decorrelators[channel].process(saws[channel].getSample(), outputChannels[channel][sample]);
+                    // sample1 = outputChannels[channel][sample];
                     
+                    outputChannels[channel][sample] = saws[channel].getSample();
+
                     //apply panning
-                    // speaker[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
+                    speaker[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
                     
                     //apply reverb (do this after panning so the reverb does not get panned)
-                    reverbs[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
+                    // reverbs[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
 
 
                 }
             }
         }
+    static const int numOutputs = 3;
 
-
-    std::array<Sine, 2> sines { Sine(400, 0.5f), Sine(400, 0.5f) };
-    std::array<Sawtooth, 2> saws { Sawtooth(300, 0.9f), Sawtooth(300, 0.9f) };
-    std::array<Chorus, 2> chorus { Chorus(0.35f, 1.0f, 10), Chorus(0.4f, 1.2f, 15, 0.5f) } ;
-    std::array<Decorrelator, 2> decorrelators { Decorrelator(), Decorrelator() };
-    std::array<Flanger, 2> flangers { Flanger(), Flanger() };
-    std::array<Reverb, 2> reverbs { Reverb(), Reverb() };
-    std::array<Panner, 2> speaker { Panner(), Panner() };
+    std::array<Sine, numOutputs> sines { Sine(400, 0.5f), Sine(400, 0.5f) };
+    std::array<Sawtooth, numOutputs> saws { Sawtooth(300, 0.9f), Sawtooth(300, 0.9f) };
+    std::array<Chorus, numOutputs> chorus { Chorus(0.35f, 1.0f, 10), Chorus(0.4f, 1.2f, 15, 0.5f) } ;
+    std::array<Decorrelator, numOutputs> decorrelators { Decorrelator(), Decorrelator() };
+    std::array<Flanger, numOutputs> flangers { Flanger(), Flanger() };
+    std::array<Reverb, numOutputs> reverbs { Reverb(), Reverb() };
+    std::array<Panner, numOutputs> speaker { Panner(), Panner() };
     Object joystick1 { Object() };
 	Object joystick2 { Object() };
 	Object touchpad1 { Object() };
@@ -123,7 +125,7 @@ class Callback : public AudioCallback {
 	float angleStep { 0.0001f };
     float sample1 = { 0.0f };
     float impulse = { 0.0f };
-    std::array<WaveShaper, 2> waveShapers { WaveShaper(4.0f), WaveShaper(4.0f) };
+    std::array<WaveShaper, numOutputs> waveShapers { WaveShaper(4.0f), WaveShaper(4.0f), WaveShaper(4.0f) };
 };
 
 
@@ -132,7 +134,7 @@ int main() {
     auto callback = Callback {};
     auto jack = JackModule (callback);
 
-    jack.init(2,2);
+    jack.init(2,3);
 
     bool running = true;
 
