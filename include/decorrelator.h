@@ -27,5 +27,5 @@ class Decorrelator : public Effect {
         void changeCoefficients(float gainFactor, float delayFactor);
     
     private:
-        Allpass filters[5];
+        Allpass filters[1];
 };

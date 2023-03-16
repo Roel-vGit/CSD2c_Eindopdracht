@@ -26,7 +26,7 @@ class Callback : public AudioCallback {
                 chorus[i].setDryWet(0.5f);
                 chorus[i].setType("Chorus");
                 decorrelators[i].prepareToPlay(sampleRate);
-                decorrelators[i].setDryWet(1.0f);
+                decorrelators[i].setDryWet(0.0f);
                 decorrelators[i].setType("Decorrelator");
                 speaker[i].prepareToPlay(sampleRate);
                 reverbs[i].prepareToPlay(sampleRate);
@@ -39,6 +39,7 @@ class Callback : public AudioCallback {
                 speaker[3].setPolarPosition(1.0f, 225, true);
 
 				angleStep = 0.0001f;
+                sample1 = 0.0f;
         }
            
 
@@ -68,33 +69,35 @@ class Callback : public AudioCallback {
                     speaker[channel].calcAmplitude(joystick1);
                     speaker[channel].calcDelay(joystick2);
 
+
                     //adjust parameters here (TODO: more parameter changes to be added)
                     //-----------------------------------------------------------------------
 
 					// flanging based on movement of the joysticks
-					flangers[channel].setDryWet(joystick1.getSpeed() + joystick2.getSpeed());
+					// flangers[channel].setDryWet(joystick1.getSpeed() + joystick2.getSpeed());
 
                     //chorus based on radius of touchPad and depth based on angle
-					chorus[channel].setDryWet(touchpad1.getRadius());
-                    chorus[channel].setDepth(touchpad1.getAngle(true) / 3.6f);
+					// chorus[channel].setDryWet(touchpad1.getRadius());
+                    // chorus[channel].setDepth(touchpad1.getAngle(true) / 3.6f);
 
                     //decorrelator based on radius of touchpad2
-					decorrelators[channel].setDryWet(touchpad2.getRadius());
+					// decorrelators[channel].setDryWet(touchpad2.getRadius());
 
                     //reverb parameters
-                    reverbs[channel].setDamping(1.0f - touchpad2.getRadius());
-                    reverbs[channel].setDecay(touchpad1.getAngle(true) / 360.0f);
-                    reverbs[channel].setDryWet(touchpad2.getRadius());
+                    // reverbs[channel].setDamping(1.0f - touchpad2.getRadius());
+                    // reverbs[channel].setDecay(touchpad1.getAngle(true) / 360.0f);
+                    // reverbs[channel].setDryWet(touchpad2.getRadius());
 
                     //calculate the effects
                     //-----------------------------------------------------------------------   
 
-                    flangers[channel].process(saws[channel].getSample(), outputChannels[channel][sample]);
-                    chorus[channel].process(saws[channel].getSample(), outputChannels[channel][sample]);
+                    // flangers[channel].process(saws[channel].getSample(), outputChannels[channel][sample]);
+                    // chorus[channel].process(saws[channel].getSample(), outputChannels[channel][sample]);
                     decorrelators[channel].process(saws[channel].getSample(), outputChannels[channel][sample]);
+                    sample1 = outputChannels[channel][sample];
                     
                     //apply panning
-                    speaker[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
+                    // speaker[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
                     
                     //apply reverb (do this after panning so the reverb does not get panned)
                     reverbs[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
@@ -106,7 +109,7 @@ class Callback : public AudioCallback {
 
 
     std::array<Sine, 2> sines { Sine(400, 0.5f), Sine(400, 0.5f) };
-    std::array<Sawtooth, 2> saws { Sawtooth(300, 0.5f), Sawtooth(300, 0.5f) };
+    std::array<Sawtooth, 2> saws { Sawtooth(300, 0.9f), Sawtooth(300, 0.9f) };
     std::array<Chorus, 2> chorus { Chorus(0.35f, 1.0f, 10), Chorus(0.4f, 1.2f, 15, 0.5f) } ;
     std::array<Decorrelator, 2> decorrelators { Decorrelator(), Decorrelator() };
     std::array<Flanger, 2> flangers { Flanger(), Flanger() };
@@ -118,6 +121,8 @@ class Callback : public AudioCallback {
 	Object touchpad2 { Object() };
     float angle = { 0.0f };
 	float angleStep { 0.0001f };
+    float sample1 = { 0.0f };
+    float impulse = { 0.0f };
     std::array<WaveShaper, 2> waveShapers { WaveShaper(4.0f), WaveShaper(4.0f) };
 };
 
@@ -174,6 +179,10 @@ int main() {
 				std::cout << "Set speed: ";
 				std::cin >> speed;
 				callback.angleStep = speed;
+            case 'i':
+                callback.impulse = 1.0f;
+                callback.impulse = 0.0f;
+
         }   
 
     }

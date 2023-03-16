@@ -35,6 +35,8 @@ void Decorrelator::setCoefficients(float maxFeedback, float maxDelay)
     {
         float gain = Util::random(maxFeedback * 1000) / 1000.0f * sign;
         float delay = Util::random(maxDelay);
+        gain = 0.16777216f;
+        delay = Util::samplesToMs(8, sampleRate);
         filter.setAllpass(gain, delay);
     }
 }
