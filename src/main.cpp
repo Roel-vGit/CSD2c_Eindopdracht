@@ -81,27 +81,32 @@ class Callback : public AudioCallback {
 
 					// flanging based on movement of the joysticks
 					flangers[channel].setDryWet(joystick1.getSpeed());
+                    flangers[0].setFeedback(cos(joystick1.getAngle()) * 0.98f);
+                    flangers[1].setFeedback(sin(joystick1.getAngle()) * 0.98f);
 
                     //chorus based on radius of touchPad and depth based on angle
 					chorus[channel].setDryWet(touchpad1.getRadius());
-                    chorus[channel].setRate(sin(sin(touchpad1.getAngle())) * 5.0f);
-                    // std::cout << chorus[channel].getDryWet() << std::endl;
+                    chorus[0].setRate(sin(sin(touchpad1.getAngle())) * abs(touchpad2.getX()) * 50.0f);
+                    chorus[1].setRate(tan(touchpad1.getAngle()) * abs(touchpad2.getY()) * 50.0f);
+                    chorus[0].setDepth((touchpad1.getX() / 2 + 0.5f) * 100.0f);
+                    chorus[1].setDepth((touchpad1.getY() / 2 + 0.5f) * 100.0f);
 
                     //decorrelator based on radius of touchpad2
-					decorrelators[channel].setDryWet(touchpad1.getRadius());
+					decorrelators[channel].setDryWet(touchpad2.getRadius());
                     
-
                     //reverb parameters
                     reverbs[channel].setDamping(1.0f - touchpad2.getRadius());
                     reverbs[channel].setDecay(sin(touchpad2.getAngle()));
                     reverbs[channel].setDryWet(touchpad2.getRadius());
+                    // std::cout << "Touchpad2 Radius " << touchpad2.getRadius() << std::endl;
+                    // std::cout << "Reverb: " << channel << " " << reverbs[channel].getDryWet() << std::endl;
 
                     //calculate the effects
                     //-----------------------------------------------------------------------   
 
-                    // flangers[channel].process(saws[channel].getSample(), outputChannels[channel][sample]);
-                    // chorus[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
-                    decorrelators[channel].process(saws[channel].getSample(), outputChannels[channel][sample]);
+                    flangers[channel].process(saws[channel].getSample(), outputChannels[channel][sample]);
+                    chorus[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
+                    decorrelators[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
                     // sample1 = outputChannels[channel][sample];
                     
                     // outputChannels[channel][sample] = saws[channel].getSample();
@@ -110,7 +115,7 @@ class Callback : public AudioCallback {
                     speaker[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
                     
                     //apply reverb (do this after panning so the reverb does not get panned)
-                    // reverbs[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
+                    reverbs[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
 
 
                 }
