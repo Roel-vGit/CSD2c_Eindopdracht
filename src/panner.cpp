@@ -1,6 +1,8 @@
 #include "../include/panner.h"
 #include <iostream>
 
+
+
 // Struct Object
 //----------------------------------------------------------------------
 
@@ -56,9 +58,10 @@ float Object::getRadius() const
 float Object::getSpeed()
 {
     if (speed < 0.0f)
-        return speed * -1.0f;
-    else
-        return speed;
+        speed *= -1.0f;
+    speedOutput += 0.001 * (speed - speedOutput); // smoothing filter
+    previousSpeed = speedOutput;
+    return speedOutput;
 }
 
 void Object::calcSpeed()
@@ -86,6 +89,8 @@ void Panner::prepareToPlay(int sampleRate)
 {
     this->sampleRate = sampleRate;
     delay.prepareToPlay(sampleRate);
+    smoothing.prepareToPlay(sampleRate);
+    smoothing.setCutoff(10.0f);
 }
 
 void Panner::calculate(const float& input, float& output)

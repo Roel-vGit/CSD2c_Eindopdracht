@@ -29,72 +29,33 @@
 *
 **********************************************************************/
 
-#include "../libs/osc.h"
-
-
-// subclass OSC into a local class so we can provide our own callback
-class localOSC : public OSC
-{
-  int realcallback(const char *path,const char *types,lo_arg **argv,int argc)
-  {
-  std::string msgpath=path; // convert char* to std::string
-
-    if(!msgpath.compare("/sound")){
-      char * user_input = (char *)argv[0];
-      int int1 = argv[1]->i;
-      int int2 = argv[2]->i;
-      int int3 = argv[2]->i;
-      std::cout << "Message: " <<
-        user_input << " " <<
-        int1 << " " <<
-        int2 << " " <<
-        int3 << " " << std::endl;
-    } // if
-    if(!msgpath.compare("/tactile")){
-      int int1 = argv[0]->i;
-      int int2 = argv[1]->i;
-      std::cout << "Message: " <<
-        int1 << " " <<
-        int2 << " " << std::endl;
-    }
-    if(!msgpath.compare("/x")){
-      int x = argv[0]->i;
-      std::cout << "Message: " << x << std::endl;
-    }if(!msgpath.compare("/y")){
-      int y = argv[0]->i;
-      std::cout << "Message: " << y << std::endl;
-    } // if
-    if(!msgpath.compare("/freq")){
-      float freq = argv[0]->f;
-      std::cout << "Message: " << freq << std::endl;
-    } // if
-
-    return 0;
-  } // realcallback()
-};
+// #include "../libs/osc.h"
 
 
 
-int main()
-{
-int done = 0;
-localOSC osc;
-std::string serverport="7777";
 
-  osc.init(serverport);
-  osc.set_callback("/sound","siii");
-  osc.set_callback("/tactile","ii");
-  osc.set_callback("/x","i");
-  osc.set_callback("/y","i");
-  osc.set_callback("/freq","f");
 
-  osc.start();
-  std::cout << "Listening on port " << serverport << std::endl;
 
-  while (!done) 
-  {
-    usleep(1000);
-  }
+// int main()
+// {
+    // int done = 0;
+    // localOSC osc;
+    // std::string serverport="7777";
 
-  return 0;
-}
+    //   osc.init(serverport);
+    //   osc.set_callback("/sound","siii");
+    //   osc.set_callback("/tactile","ii");
+    //   osc.set_callback("/x","i");
+    //   osc.set_callback("/y","i");
+    //   osc.set_callback("/freq","f");
+
+    //   osc.start();
+    //   std::cout << "Listening on port " << serverport << std::endl;
+
+    //   while (!done) 
+    //   {
+    //     usleep(1000);
+    //   }
+
+    //   return 0;
+// }

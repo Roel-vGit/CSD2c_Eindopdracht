@@ -14,6 +14,10 @@
 #include "../include/rack.h"
 #include <array>
 
+#include "../libs/osc.h"
+
+localOSC osc;
+
 class Callback : public AudioCallback {
     public:
         void prepare(int sampleRate) override
@@ -26,7 +30,7 @@ class Callback : public AudioCallback {
                 chorus[i].setDryWet(0.5f);
                 chorus[i].setType("Chorus");
                 decorrelators[i].prepareToPlay(sampleRate);
-                decorrelators[i].setDryWet(0.0f);
+                decorrelators[i].setDryWet(1.0f);
                 decorrelators[i].setType("Decorrelator");
                 speaker[i].prepareToPlay(sampleRate);
                 reverbs[i].prepareToPlay(sampleRate);
@@ -56,53 +60,55 @@ class Callback : public AudioCallback {
                     //-----------------------------------------------------------------------
 
                     //make the audio source circle
-                    joystick1.setPolarPosition(1.0f, 45, true);
-					joystick2.setPolarPosition(1.0f, 45, true);
-					touchpad1.setPolarPosition(1.0f, angle);
-					touchpad2.setPolarPosition(1.0f, angle * -1.0f);
+                    joystick1.setCartesianPosition(osc.joystick1Xpos, osc.joystick1Ypos);
+					joystick2.setCartesianPosition(osc.joystick2Xpos, osc.joystick2Ypos);
+					touchpad1.setCartesianPosition(osc.touchPad1Xpos, osc.touchPad1Ypos);
+					touchpad2.setCartesianPosition(osc.touchPad2Xpos, osc.touchPad2Ypos);
 					angle += angleStep;
 
 					joystick1.calcSpeed();
 					joystick2.calcSpeed();
 
                     //calculate amplitude and delay per speaker based on joystick1 position
-                    speaker[channel].calcAmplitude(joystick1);
-                    speaker[channel].calcDelay(joystick2);
+                    speaker[channel].calcAmplitude(touchpad2);
+                    speaker[channel].calcDelay(touchpad2);
 
 
                     //adjust parameters here (TODO: more parameter changes to be added)
                     //-----------------------------------------------------------------------
 
 					// flanging based on movement of the joysticks
-					// flangers[channel].setDryWet(joystick1.getSpeed() + joystick2.getSpeed());
+					flangers[channel].setDryWet(touchpad2.getSpeed());
 
                     //chorus based on radius of touchPad and depth based on angle
-					// chorus[channel].setDryWet(touchpad1.getRadius());
-                    // chorus[channel].setDepth(touchpad1.getAngle(true) / 3.6f);
+					chorus[channel].setDryWet(touchpad1.getRadius());
+                    chorus[channel].setDepth(touchpad1.getAngle(true) / 3.6f);
+                    // std::cout << chorus[channel].getDryWet() << std::endl;
 
                     //decorrelator based on radius of touchpad2
-					// decorrelators[channel].setDryWet(touchpad2.getRadius());
+					decorrelators[channel].setDryWet(touchpad1.getRadius());
+                    
 
                     //reverb parameters
-                    // reverbs[channel].setDamping(1.0f - touchpad2.getRadius());
-                    // reverbs[channel].setDecay(touchpad1.getAngle(true) / 360.0f);
-                    // reverbs[channel].setDryWet(touchpad2.getRadius());
+                    reverbs[channel].setDamping(1.0f - touchpad2.getRadius());
+                    reverbs[channel].setDecay(touchpad2.getAngle(true) / 360.0f);
+                    // reverbs[channel].setDryWet(touchpad1.getRadius());
 
                     //calculate the effects
                     //-----------------------------------------------------------------------   
 
-                    // flangers[channel].process(saws[channel].getSample(), outputChannels[channel][sample]);
-                    // chorus[channel].process(saws[channel].getSample(), outputChannels[channel][sample]);
-                    // decorrelators[channel].process(saws[channel].getSample(), outputChannels[channel][sample]);
+                    flangers[channel].process(saws[channel].getSample(), outputChannels[channel][sample]);
+                    chorus[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
+                    // decorrelators[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
                     // sample1 = outputChannels[channel][sample];
                     
-                    outputChannels[channel][sample] = saws[channel].getSample();
+                    // outputChannels[channel][sample] = saws[channel].getSample();
 
                     //apply panning
                     speaker[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
                     
                     //apply reverb (do this after panning so the reverb does not get panned)
-                    // reverbs[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
+                    reverbs[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
 
 
                 }
@@ -134,7 +140,19 @@ int main() {
     auto callback = Callback {};
     auto jack = JackModule (callback);
 
-    jack.init(2,3);
+    jack.init(2,2);
+
+
+    std::string serverport="7563";
+
+    osc.init(serverport);
+    osc.set_callback("/joystick1","ff");
+    osc.set_callback("/joystick2","ff");
+    osc.set_callback("/touchpad1", "ff");
+    osc.set_callback("/touchpad2","ff");
+
+  osc.start();
+  std::cout << "Listening on port " << serverport << std::endl;
 
     bool running = true;
 
@@ -188,6 +206,7 @@ int main() {
         }   
 
     }
+
 
     return 0;
 }

@@ -24,7 +24,7 @@ public:
 	void setBypass(bool bypass);
 	void setType(std::string type) { this->type = type; }
 
-	std::string getType(){return this->type;}
+	std::string getType() { return this->type;}
 	std::string getSampleRate() { return std::to_string(sampleRate); }
 
 	float getDryWet() { return dryWet;}

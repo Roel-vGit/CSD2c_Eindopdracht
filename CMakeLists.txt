@@ -13,3 +13,6 @@ add_executable(madPanner ${SOURCES}) # Make the executable, name it madPanner an
 
 find_library(JACK_LIB jack) # Find the jack library and put it in the variable JACK_LIB.
 target_link_libraries(madPanner ${JACK_LIB}) # Link the jack library to the project.
+
+find_library(OSC lo) # Find the liblo library for OSC Communication.
+target_link_libraries(madPanner ${OSC}) # Link the liblo library to the project.

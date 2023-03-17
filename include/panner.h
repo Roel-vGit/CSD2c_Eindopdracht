@@ -3,6 +3,7 @@
 #include <cmath>
 #include <vector>
 #include "../libs/util.h"
+#include "filter.h"
 #include "effect.h"
 #include "delay.h"
 
@@ -47,6 +48,8 @@ struct Object {
         //calculates the speed of an object. Only call this function once in a callback.
         void calcSpeed();
 
+        Lowpass smoothing { Lowpass() };
+
         private:
         
         float xPos { 1.0f };
@@ -54,7 +57,11 @@ struct Object {
         float radius { 1.0f };
         float angle { 0.0f };
         float speed { 0.0f };
+        float previousSpeed { 0.0f };
+        float speedOutput { 0.0f };
         float sum { 0.0 };
+
+
 };
 
 //----------------------------------------------------------------------

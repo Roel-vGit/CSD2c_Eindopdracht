@@ -38,6 +38,8 @@
 
 using namespace std;
 
+#pragma once
+
 
 /*
  * class OSC creates a server listening to a certain port. For every
@@ -58,4 +60,64 @@ private:
           lo_arg **argv,int argc,void *data,void *user_data);
 
   lo_server_thread server;
+};
+
+//OSC Server that receives messages
+//--------------------------------------------------------------------------------
+
+// subclass OSC into a local class so we can provide our own callback
+class localOSC : public OSC
+{
+
+
+  int realcallback(const char *path,const char *types,lo_arg **argv,int argc)
+  {
+  std::string msgpath=path; // convert char* to std::string
+
+    if(!msgpath.compare("/joystick1")){
+      joystick1Xpos = argv[0]->f;
+      joystick1Ypos = argv[1]->f;
+      std::cout << counter++ << "   " <<
+        "Joystick 1: " <<
+        joystick1Xpos << " " <<
+        joystick1Ypos << " " << std::endl;
+    } // if
+    if(!msgpath.compare("/joystick2")){
+      joystick2Xpos = argv[0]->f;
+      joystick2Ypos = argv[1]->f;
+      // std::cout << "Joystick 2: " <<
+      //   joystick2Xpos << " " <<
+      //   joystick2Ypos << " " << std::endl;
+    }
+    if(!msgpath.compare("/touchpad1")){
+      touchPad1Xpos = argv[0]->f;
+      touchPad1Ypos = argv[1]->f;
+      std::cout << "Touchpad 1: " <<
+        touchPad1Xpos << " " <<
+        touchPad1Ypos << " " << std::endl;
+    } // if
+    if(!msgpath.compare("/touchpad2")){
+      touchPad2Xpos = argv[0]->f;
+      touchPad2Ypos = argv[1]->f;
+      // std::cout << "Touchpad 2: " <<
+      // touchPad2Xpos << " " <<
+      // touchPad2Ypos << " " << std::endl;
+    }
+
+    return 0;
+  } // realcallback()
+
+  public:
+    float joystick1Xpos;
+    float joystick1Ypos;
+    float touchPad1Xpos;
+    float touchPad1Ypos;
+
+    float joystick2Xpos;
+    float joystick2Ypos;
+    float touchPad2Xpos;
+    float touchPad2Ypos;
+
+    int counter { 0 };
+
 };
