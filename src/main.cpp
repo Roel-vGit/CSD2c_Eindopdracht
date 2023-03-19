@@ -86,13 +86,13 @@ class Callback : public AudioCallback {
 
                     //chorus based on radius of touchPad and depth based on angle
 					chorus[channel].setDryWet(touchpad1.getRadius());
-                    chorus[0].setRate(sin(sin(touchpad1.getAngle())) * abs(touchpad2.getX()) * 50.0f);
-                    chorus[1].setRate(tan(touchpad1.getAngle()) * abs(touchpad2.getY()) * 50.0f);
+                    chorus[0].setRate(tan((touchpad1.getAngle()) / pi) * 25.0f);
+                    chorus[1].setRate(cos(touchpad1.getAngle()) * 25.0f);
                     chorus[0].setDepth((touchpad1.getX() / 2 + 0.5f) * 100.0f);
                     chorus[1].setDepth((touchpad1.getY() / 2 + 0.5f) * 100.0f);
 
                     //decorrelator based on radius of touchpad2
-					decorrelators[channel].setDryWet(joystick2.getRadius());
+					// decorrelators[channel].setDryWet(joystick2.getRadius());
                     decorrelators[channel].changeCoefficients(abs(sin(joystick2.getAngle())), abs(cos(joystick2.getAngle())));
                     
                     //reverb parameters
