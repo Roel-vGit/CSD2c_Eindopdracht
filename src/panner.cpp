@@ -101,7 +101,7 @@ void Panner::calculate(const float& input, float& output)
 
 void Panner::calcAmplitude(const Object& source)
 {
-    float distance = (soundRadius - getDistance(source)) / soundRadius;
+    float distance = ((soundRadius - getDistance(source)) / soundRadius);
     if (distance < 0.0f) 
         distance = 0.0f;
     this->amplitude = distance;
@@ -109,7 +109,7 @@ void Panner::calcAmplitude(const Object& source)
 
 void Panner::calcDelay(const Object& source)
 {
-    float delayValue = getDistance(source) - Util::mapInRange(source.getRadius(), 0.0f, 0.707f, 1.0f, 0.707f);
+    float delayValue = (getDistance(source) - Util::mapInRange(source.getRadius(), 0.0f, 0.707f, 1.0f, 0.707f));
     if (delayValue < 0.0001f)
         delayValue = 0.0f;
     this->delayTime = delayValue * maxDelay;
@@ -118,10 +118,15 @@ void Panner::calcDelay(const Object& source)
 
 float Panner::getDistance(const Object& source) const
 {   
-    return Util::calcRadius(getX() - source.getX(), getY() - source.getY());
+    return Util::calcRadius(getX() - source.getX() * (1.0f - decorrelation), getY() - source.getY() * (1.0f - decorrelation));
 }
 
 float Panner::getDelay() const
 {
     return this->delayTime;
+}
+
+void Panner::setDecorrelation(float decorrelation)
+{
+    this->decorrelation = decorrelation;
 }

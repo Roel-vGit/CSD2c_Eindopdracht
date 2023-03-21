@@ -71,10 +71,12 @@ class Callback : public AudioCallback {
                     touchpad1.calcSpeed();
                     touchpad2.calcSpeed();
 
+
+                    speaker[channel].setDecorrelation((chorus[channel].getDryWet() + decorrelators[channel].getDryWet() + reverbs[channel].getDryWet()) / 3.0f);
+
                     //calculate amplitude and delay per speaker based on joystick1 position
                     speaker[channel].calcAmplitude(joystick1);
                     speaker[channel].calcDelay(joystick1);
-
 
                     //adjust parameters here (TODO: more parameter changes to be added)
                     //-----------------------------------------------------------------------
@@ -92,11 +94,13 @@ class Callback : public AudioCallback {
                     chorus[1].setDepth((touchpad1.getY() / 2 + 0.5f) * 100.0f);
 
                     //decorrelator based on radius of touchpad2
-					// decorrelators[channel].setDryWet(joystick2.getRadius());
-                    decorrelators[channel].changeCoefficients(abs(sin(joystick2.getAngle())), abs(cos(joystick2.getAngle())));
+					decorrelators[channel].setDryWet(joystick2.getRadius());
+                    decorrelators[0].changeCoefficients(abs(sin(joystick2.getAngle())), abs(cos(joystick2.getAngle())));
+                    decorrelators[1].changeCoefficients(1.0f - abs(sin(joystick2.getAngle())), 1.0f - abs(cos(joystick2.getAngle())));
                     
                     //reverb parameters
-                    reverbs[channel].setDamping(1.0f - touchpad2.getRadius());
+                    reverbs[0].setDamping(1.0f - touchpad2.getRadius());
+                    reverbs[1].setDamping(touchpad2.getAngle());
                     reverbs[channel].setDecay(sin(touchpad2.getAngle()));
                     reverbs[channel].setDryWet(touchpad2.getRadius());
                     // std::cout << "x: " << joystick1.getX() << "  y: " << joystick1.getY() << "  Joystick 2: " << joystick1.getRadius() << "  DryWet: " << reverbs[channel].getDryWet() << std::endl;
@@ -215,7 +219,6 @@ int main() {
         }   
 
     }
-
 
     return 0;
 }
