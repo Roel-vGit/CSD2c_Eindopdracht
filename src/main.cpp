@@ -95,7 +95,7 @@ class Callback : public AudioCallback {
 
                     //decorrelator based on radius of touchpad2
 					decorrelators[channel].setDryWet(joystick2.getRadius());
-                    decorrelators[0].changeCoefficients(abs(sin(joystick2.getAngle())), abs(cos(joystick2.getAngle())));
+                    decorrelators[0].changeCoefficients(abs(sin(joystick2.getAngle())) /** joystick2.getSpeed()*/, abs(cos(joystick2.getAngle())) /** joystick2.getSpeed()*/);
                     decorrelators[1].changeCoefficients(1.0f - abs(sin(joystick2.getAngle())), 1.0f - abs(cos(joystick2.getAngle())));
                     
                     //reverb parameters
