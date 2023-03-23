@@ -103,7 +103,7 @@ class Panner : public Effect, public Object {
         float amplitude { 1.0f };
         float delayTime { 0.0f };
         float soundRadius { 1.8f };
-        float maxDelay { 4.0f };
+        float maxDelay { 2.0f };
         float decorrelation { 0.0f};
 
         Delay delay { Delay(10.0f, 0.0f) };

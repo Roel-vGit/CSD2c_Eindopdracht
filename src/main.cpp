@@ -42,7 +42,7 @@ class Callback : public AudioCallback {
                 speaker[2].setPolarPosition(1.0f, 315, true);
                 speaker[3].setPolarPosition(1.0f, 225, true);
 
-				angleStep = 0.0001f;
+				angleStep = 0.00001f;
                 sample1 = 0.0f;
         }
            
@@ -55,14 +55,14 @@ class Callback : public AudioCallback {
                 {   
                     //test tone
                     saws[channel].tick();
-					outputChannels[channel][sample] = saws[channel].getSample();
+					outputChannels[channel][sample] = inputChannels[2][sample];
 
                     //receive the controller values here (do this in auxilliary task in Bela)
                     //-----------------------------------------------------------------------
 
                     //make the audio source circle
-                    // joystick1.setCartesianPosition(osc.joystick1Xpos, osc.joystick1Ypos);
-                    joystick1.setPolarPosition(1.0f, angle);
+                     joystick1.setCartesianPosition(osc.joystick1Xpos, osc.joystick1Ypos);
+//                    joystick1.setPolarPosition(1.0f, angle);
 					joystick2.setCartesianPosition(osc.joystick2Xpos, osc.joystick2Ypos);
 					touchpad1.setCartesianPosition(osc.touchPad1Xpos, osc.touchPad1Ypos);
 					touchpad2.setCartesianPosition(osc.touchPad2Xpos, osc.touchPad2Ypos);
@@ -74,10 +74,10 @@ class Callback : public AudioCallback {
                     touchpad2.calcSpeed();
 
 
-//                    speaker[channel].setDecorrelation((chorus[channel].getDryWet() + decorrelators[channel].getDryWet() + reverbs[channel].getDryWet()) / 3.0f);
+                    speaker[channel].setDecorrelation((chorus[channel].getDryWet() + decorrelators[channel].getDryWet() + reverbs[channel].getDryWet()) / 1.5f);
 
                     //calculate amplitude and delay per speaker based on joystick1 position
-//                    speaker[channel].calcAmplitude(joystick1);
+                    speaker[channel].calcAmplitude(joystick1);
                     speaker[channel].calcDelay(joystick1);
 
                     //adjust parameters here (TODO: more parameter changes to be added)
@@ -112,18 +112,21 @@ class Callback : public AudioCallback {
                     //calculate the effects
                     //-----------------------------------------------------------------------   
 
-//                    flangers[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
-//                    chorus[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
-//                    decorrelators[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
+                    flangers[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
+                    chorus[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
+                    decorrelators[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
                     // sample1 = outputChannels[channel][sample];
                     
                     // outputChannels[channel][sample] = saws[channel].getSample();
 
                     //apply panning
-                    speaker[channel].process(saws[channel].getSample(), outputChannels[channel][sample]);
+                    speaker[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
                     
                     //apply reverb (do this after panning so the reverb does not get panned)
-//                    reverbs[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
+                    reverbs[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
+
+//					outputChannels[channel][sample] = 0;
+					outputChannels[channel][sample] += inputChannels[1][sample];
 
 
                 }
@@ -133,11 +136,11 @@ class Callback : public AudioCallback {
 
     std::array<Sine, numOutputs> sines { Sine(400, 0.5f), Sine(400, 0.5f) };
     std::array<Sawtooth, numOutputs> saws { Sawtooth(300, 0.9f), Sawtooth(300, 0.9f), Sawtooth(300, 0.9f), Sawtooth(300, 0.9f) };
-    std::array<Chorus, numOutputs> chorus { Chorus(0.35f, 1.0f, 10), Chorus(0.4f, 1.2f, 15, 0.5f) } ;
-    std::array<Decorrelator, numOutputs> decorrelators { Decorrelator(), Decorrelator() };
-    std::array<Flanger, numOutputs> flangers { Flanger(), Flanger() };
-    std::array<Reverb, numOutputs> reverbs { Reverb(), Reverb() };
-    std::array<Panner, numOutputs> speaker { Panner(), Panner() };
+    std::array<Chorus, numOutputs> chorus { Chorus(0.35f, 1.0f, 10), Chorus(0.4f, 1.2f, 15, 0.5f), Chorus(0.4f, 1.2f, 15, 0.5f), Chorus(0.4f, 1.2f, 15, 0.5f) } ;
+    std::array<Decorrelator, numOutputs> decorrelators { Decorrelator(), Decorrelator(), Decorrelator(), Decorrelator() };
+    std::array<Flanger, numOutputs> flangers { Flanger(), Flanger(), Flanger(), Flanger() };
+    std::array<Reverb, numOutputs> reverbs { Reverb(), Reverb(), Reverb(), Reverb() };
+    std::array<Panner, numOutputs> speaker { Panner(), Panner(), Panner(), Panner() };
     Object joystick1 { Object() };
 	Object joystick2 { Object() };
 	Object touchpad1 { Object() };
@@ -155,7 +158,7 @@ int main() {
     auto callback = Callback {};
     auto jack = JackModule (callback);
 
-    jack.init(2,4);
+    jack.init(4,4);
 
 
     std::string serverport="7563";

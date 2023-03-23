@@ -133,7 +133,7 @@ private:
 
     int numInputChannels = 2;
     int numOutputChannels = 2;
-    static constexpr auto MAX_INPUT_CHANNELS = 2;
+    static constexpr auto MAX_INPUT_CHANNELS = 4;
     static constexpr auto MAX_OUTPUT_CHANNELS = 4;
 
     static int jackProcessCallback (jack_nframes_t numFrames, void* self) {
