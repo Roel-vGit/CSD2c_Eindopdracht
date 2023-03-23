@@ -8,6 +8,7 @@ file(GLOB SOURCES "src/*.cpp") # Make a variable named SOURCES.
 include_directories(/usr/local/include) # Include the jack directory path.
 include_directories(include) # Include the header file directory.
 include_directories(libs) # Include the library directory.
+include_directories(/opt/homebrew/Cellar/liblo/0.31/include/lo)
 
 add_executable(madPanner ${SOURCES}) # Make the executable, name it madPanner and include the .cpp files.
 
