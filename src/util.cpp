@@ -75,4 +75,10 @@ namespace Util
     {
         return (samples / sampleRate) * 1000.0f;
     }
+
+	double sgn(double x)
+	{
+		return (x >= 0) ? 1.0 : -1.0;
+	}
+
 }

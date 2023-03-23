@@ -59,4 +59,7 @@ namespace Util
     //convert samples to milliseconds
     float samplesToMs(float samples, int sampleRate);
 
+	double sgn(double x) ;
+
+
 }// Util
