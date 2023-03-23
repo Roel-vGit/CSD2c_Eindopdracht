@@ -60,7 +60,8 @@ class Callback : public AudioCallback {
                     //-----------------------------------------------------------------------
 
                     //make the audio source circle
-                    joystick1.setCartesianPosition(osc.joystick1Xpos, osc.joystick1Ypos);
+                    // joystick1.setCartesianPosition(osc.joystick1Xpos, osc.joystick1Ypos);
+                    joystick1.setPolarPosition(1.0f, angle);
 					joystick2.setCartesianPosition(osc.joystick2Xpos, osc.joystick2Ypos);
 					touchpad1.setCartesianPosition(osc.touchPad1Xpos, osc.touchPad1Ypos);
 					touchpad2.setCartesianPosition(osc.touchPad2Xpos, osc.touchPad2Ypos);
@@ -110,18 +111,18 @@ class Callback : public AudioCallback {
                     //calculate the effects
                     //-----------------------------------------------------------------------   
 
-                    flangers[channel].process(saws[channel].getSample(), outputChannels[channel][sample]);
-                    chorus[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
-                    decorrelators[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
+                    // flangers[channel].process(saws[channel].getSample(), outputChannels[channel][sample]);
+                    // chorus[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
+                    // decorrelators[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
                     // sample1 = outputChannels[channel][sample];
                     
                     // outputChannels[channel][sample] = saws[channel].getSample();
 
                     //apply panning
-                    speaker[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
+                    speaker[channel].process(saws[channel].getSample(), outputChannels[channel][sample]);
                     
                     //apply reverb (do this after panning so the reverb does not get panned)
-                    reverbs[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
+                    // reverbs[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
 
 
                 }
