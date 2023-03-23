@@ -55,6 +55,7 @@ class Callback : public AudioCallback {
                 {   
                     //test tone
                     saws[channel].tick();
+					outputChannels[channel][sample] = saws[channel].getSample();
 
                     //receive the controller values here (do this in auxilliary task in Bela)
                     //-----------------------------------------------------------------------
@@ -106,9 +107,9 @@ class Callback : public AudioCallback {
                     //calculate the effects
                     //-----------------------------------------------------------------------   
 
-                    flangers[channel].process(saws[channel].getSample(), outputChannels[channel][sample]);
-                    chorus[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
-                    decorrelators[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
+//                    flangers[channel].process(saws[channel].getSample(), outputChannels[channel][sample]);
+//                    chorus[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
+//                    decorrelators[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
                     // sample1 = outputChannels[channel][sample];
                     
                     // outputChannels[channel][sample] = saws[channel].getSample();
@@ -117,7 +118,7 @@ class Callback : public AudioCallback {
                     speaker[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
                     
                     //apply reverb (do this after panning so the reverb does not get panned)
-                    reverbs[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
+//                    reverbs[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
 
 
                 }
