@@ -55,6 +55,7 @@ class Callback : public AudioCallback {
                 {   
                     //test tone
                     saws[channel].tick();
+					outputChannels[channel][sample] = saws[channel].getSample();
 
                     //receive the controller values here (do this in auxilliary task in Bela)
                     //-----------------------------------------------------------------------
@@ -73,10 +74,10 @@ class Callback : public AudioCallback {
                     touchpad2.calcSpeed();
 
 
-                    speaker[channel].setDecorrelation((chorus[channel].getDryWet() + decorrelators[channel].getDryWet() + reverbs[channel].getDryWet()) / 3.0f);
+//                    speaker[channel].setDecorrelation((chorus[channel].getDryWet() + decorrelators[channel].getDryWet() + reverbs[channel].getDryWet()) / 3.0f);
 
                     //calculate amplitude and delay per speaker based on joystick1 position
-                    speaker[channel].calcAmplitude(joystick1);
+//                    speaker[channel].calcAmplitude(joystick1);
                     speaker[channel].calcDelay(joystick1);
 
                     //adjust parameters here (TODO: more parameter changes to be added)
@@ -111,9 +112,9 @@ class Callback : public AudioCallback {
                     //calculate the effects
                     //-----------------------------------------------------------------------   
 
-                    // flangers[channel].process(saws[channel].getSample(), outputChannels[channel][sample]);
-                    // chorus[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
-                    // decorrelators[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
+//                    flangers[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
+//                    chorus[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
+//                    decorrelators[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
                     // sample1 = outputChannels[channel][sample];
                     
                     // outputChannels[channel][sample] = saws[channel].getSample();
@@ -122,16 +123,16 @@ class Callback : public AudioCallback {
                     speaker[channel].process(saws[channel].getSample(), outputChannels[channel][sample]);
                     
                     //apply reverb (do this after panning so the reverb does not get panned)
-                    // reverbs[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
+//                    reverbs[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
 
 
                 }
             }
         }
-    static const int numOutputs = 3;
+    static const int numOutputs = 4;
 
     std::array<Sine, numOutputs> sines { Sine(400, 0.5f), Sine(400, 0.5f) };
-    std::array<Sawtooth, numOutputs> saws { Sawtooth(300, 0.9f), Sawtooth(300, 0.9f) };
+    std::array<Sawtooth, numOutputs> saws { Sawtooth(300, 0.9f), Sawtooth(300, 0.9f), Sawtooth(300, 0.9f), Sawtooth(300, 0.9f) };
     std::array<Chorus, numOutputs> chorus { Chorus(0.35f, 1.0f, 10), Chorus(0.4f, 1.2f, 15, 0.5f) } ;
     std::array<Decorrelator, numOutputs> decorrelators { Decorrelator(), Decorrelator() };
     std::array<Flanger, numOutputs> flangers { Flanger(), Flanger() };
@@ -145,7 +146,7 @@ class Callback : public AudioCallback {
 	float angleStep { 0.0001f };
     float sample1 = { 0.0f };
     float impulse = { 0.0f };
-    std::array<WaveShaper, numOutputs> waveShapers { WaveShaper(4.0f), WaveShaper(4.0f), WaveShaper(4.0f) };
+    std::array<WaveShaper, numOutputs> waveShapers { WaveShaper(4.0f), WaveShaper(4.0f), WaveShaper(4.0f), WaveShaper(4.0f) };
 };
 
 
@@ -154,7 +155,7 @@ int main() {
     auto callback = Callback {};
     auto jack = JackModule (callback);
 
-    jack.init(2,2);
+    jack.init(2,4);
 
 
     std::string serverport="7563";
