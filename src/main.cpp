@@ -80,13 +80,15 @@ class Callback : public AudioCallback {
                     speaker[channel].calcAmplitude(joystick1);
                     speaker[channel].calcDelay(joystick1);
 
-                    //adjust parameters here (TODO: more parameter changes to be added)
+                    //adjust parameters here
                     //-----------------------------------------------------------------------
 
 					// flanging based on movement of the joysticks
 					flangers[channel].setDryWet(joystick1.getSpeed());
                     flangers[0].setFeedback(cos(joystick1.getAngle()) * 0.98f);
                     flangers[1].setFeedback(sin(joystick1.getAngle()) * 0.98f);
+                    flangers[2].setFeedback(1.0f - cos(joystick1.getAngle()) * 0.98f);
+                    flangers[3].setFeedback(1.0f - sin(joystick1.getAngle()) * 0.98f);
 
                     //chorus based on radius of touchPad and depth based on angle
 					chorus[channel].setDryWet(touchpad1.getRadius());
@@ -105,19 +107,12 @@ class Callback : public AudioCallback {
                     reverbs[1].setDamping(touchpad2.getAngle());
                     reverbs[channel].setDecay(sin(touchpad2.getAngle()));
                     reverbs[channel].setDryWet(touchpad2.getRadius());
-                    // std::cout << "x: " << joystick1.getX() << "  y: " << joystick1.getY() << "  Joystick 2: " << joystick1.getRadius() << "  DryWet: " << reverbs[channel].getDryWet() << std::endl;
-                    // std::cout << "Touchpad2 Radius " << touchpad2.getRadius() << std::endl;
-                    // std::cout << "Reverb: " << channel << " " << reverbs[channel].getDryWet() << std::endl;
 
                     //calculate the effects
                     //-----------------------------------------------------------------------   
-
                     flangers[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
                     chorus[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
-                    decorrelators[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
-                    // sample1 = outputChannels[channel][sample];
-                    
-                    // outputChannels[channel][sample] = saws[channel].getSample();
+                    decorrelators[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);                    
 
                     //apply panning
                     speaker[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
