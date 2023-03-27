@@ -5,6 +5,7 @@
 #pragma once
 #include "../libs/util.h"
 #include "effect.h"
+#include "util.h"
 //#include "writeToFile.h"
 
 using uint = unsigned int;
@@ -17,7 +18,8 @@ struct WaveShaper : public Effect {
 
 	void calculate(const float& input, float& output) override;
 
-	void setDrive(float k);
+	void setDrive(float k, int type);
+
 
 private:
 	float k = 1.0f;

@@ -23,7 +23,10 @@ class Callback : public AudioCallback {
         void prepare(int sampleRate) override
         {
             for (int i = 0; i < numOutputs; i++)
-            {   
+            {
+				waveShapers[i].prepareToPlay(sampleRate);
+				waveShapers[i].setDryWet(0.5f);
+				waveShapers[i].setDrive(20.0f, i);
                 flangers[i].prepareToPlay(sampleRate);
                 flangers[i].setDryWet(0.5f);
                 chorus[i].prepareToPlay(sampleRate);
@@ -55,7 +58,7 @@ class Callback : public AudioCallback {
                 {   
                     //test tone
                     saws[channel].tick();
-					outputChannels[channel][sample] = inputChannels[2][sample];
+					outputChannels[channel][sample] = inputChannels[1][sample];
 
                     //receive the controller values here (do this in auxilliary task in Bela)
                     //-----------------------------------------------------------------------
@@ -74,7 +77,7 @@ class Callback : public AudioCallback {
                     touchpad2.calcSpeed();
 
 
-                    speaker[channel].setDecorrelation((chorus[channel].getDryWet() + decorrelators[channel].getDryWet() + reverbs[channel].getDryWet()) / 1.5f);
+//                    speaker[channel].setDecorrelation((chorus[channel].getDryWet() + decorrelators[channel].getDryWet() + reverbs[channel].getDryWet()) / 1.5f);
 
                     //calculate amplitude and delay per speaker based on joystick1 position
                     speaker[channel].calcAmplitude(joystick1);
@@ -85,43 +88,59 @@ class Callback : public AudioCallback {
 
 					// flanging based on movement of the joysticks
 					flangers[channel].setDryWet(joystick1.getSpeed());
-                    flangers[0].setFeedback(cos(joystick1.getAngle()) * 0.98f);
-                    flangers[1].setFeedback(sin(joystick1.getAngle()) * 0.98f);
-                    flangers[2].setFeedback(1.0f - cos(joystick1.getAngle()) * 0.98f);
-                    flangers[3].setFeedback(1.0f - sin(joystick1.getAngle()) * 0.98f);
+
+                    flangers[channel].setFeedback(cos(joystick1.getAngle()) * 0.98f);
 
                     //chorus based on radius of touchPad and depth based on angle
 					chorus[channel].setDryWet(touchpad1.getRadius());
-                    chorus[0].setRate(tan((touchpad1.getAngle()) / pi) * 25.0f);
-                    chorus[1].setRate(cos(touchpad1.getAngle()) * 25.0f);
+                    chorus[0].setRate(tan((touchpad1.getAngle()) / pi) * 5.0f);
+                    chorus[1].setRate(cos(touchpad1.getAngle()) * 5.0f);
+                    chorus[2].setRate(sin(touchpad1.getAngle()) * 5.0f);
+                    chorus[3].setRate(cos(touchpad1.getAngle()) * 4.0f);
                     chorus[0].setDepth((touchpad1.getX() / 2 + 0.5f) * 100.0f);
                     chorus[1].setDepth((touchpad1.getY() / 2 + 0.5f) * 100.0f);
+                    chorus[2].setDepth(((1.0f - touchpad1.getX()) / 2 + 0.5f) * 100.0f);
+                    chorus[3].setDepth(((1.0f - touchpad1.getY()) / 2 + 0.5f) * 100.0f);
 
                     //decorrelator based on radius of touchpad2
 					decorrelators[channel].setDryWet(joystick2.getRadius());
                     decorrelators[0].changeCoefficients(abs(sin(joystick2.getAngle())) /** joystick2.getSpeed()*/, abs(cos(joystick2.getAngle())) /** joystick2.getSpeed()*/);
-                    decorrelators[1].changeCoefficients(1.0f - abs(sin(joystick2.getAngle())), 1.0f - abs(cos(joystick2.getAngle())));
-                    
+                    decorrelators[1].changeCoefficients(abs(sin(joystick2.getAngle())) /** joystick2.getSpeed()*/, abs(cos(joystick2.getAngle())) /** joystick2.getSpeed()*/);
+                    decorrelators[2].changeCoefficients(1.0f - abs(sin(joystick2.getAngle())), 1.0f - abs(cos(joystick2.getAngle())));
+                    decorrelators[3].changeCoefficients(1.0f - abs(sin(joystick2.getAngle())), 1.0f - abs(cos(joystick2.getAngle())));
+
                     //reverb parameters
-                    reverbs[0].setDamping(1.0f - touchpad2.getRadius());
-                    reverbs[1].setDamping(touchpad2.getAngle());
+                    reverbs[channel].setDamping(1.0f - touchpad2.getRadius());
                     reverbs[channel].setDecay(sin(touchpad2.getAngle()));
                     reverbs[channel].setDryWet(touchpad2.getRadius());
 
+					//waveShaper parameters
+					waveShapers[0].setDryWet(sin(touchpad2.getAngle()) * touchpad2.getRadius());
+					waveShapers[1].setDryWet(cos(touchpad2.getAngle()) * touchpad2.getRadius());
+					waveShapers[2].setDryWet((1.0f - sin(touchpad2.getAngle())) * touchpad2.getRadius());
+					waveShapers[3].setDryWet((1.0f - cos(touchpad2.getAngle())) * touchpad2.getRadius());
+
+                    // std::cout << "x: " << joystick1.getX() << "  y: " << joystick1.getY() << "  Joystick 2: " << joystick1.getRadius() << "  DryWet: " << reverbs[channel].getDryWet() << std::endl;
+                    // std::cout << "Touchpad2 Radius " << touchpad2.getRadius() << std::endl;
+                    // std::cout << "Reverb: " << channel << " " << reverbs[channel].getDryWet() << std::endl;
+
                     //calculate the effects
                     //-----------------------------------------------------------------------   
-                    flangers[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
-                    chorus[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
-                    decorrelators[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);                    
+
+//                    flangers[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
+//                    chorus[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
+//                    decorrelators[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
+                    waveShapers[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
+
 
                     //apply panning
                     speaker[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
                     
                     //apply reverb (do this after panning so the reverb does not get panned)
-                    reverbs[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
+//                    reverbs[channel].process(outputChannels[channel][sample], outputChannels[channel][sample]);
 
 //					outputChannels[channel][sample] = 0;
-					outputChannels[channel][sample] += inputChannels[1][sample];
+					outputChannels[channel][sample] += inputChannels[0][sample];
 
 
                 }

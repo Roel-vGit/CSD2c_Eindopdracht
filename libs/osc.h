@@ -91,16 +91,16 @@ class localOSC : public OSC
     if(!msgpath.compare("/touchpad1")){
       touchPad1Xpos = argv[0]->f;
       touchPad1Ypos = argv[1]->f;
-      std::cout << "Touchpad 1: " <<
-        touchPad1Xpos << " " <<
-        touchPad1Ypos << " " << std::endl;
+//      std::cout << "Touchpad 1: " <<
+//        touchPad1Xpos << " " <<
+//        touchPad1Ypos << " " << std::endl;
     } // if
     if(!msgpath.compare("/touchpad2")){
       touchPad2Xpos = argv[0]->f;
       touchPad2Ypos = argv[1]->f;
-      std::cout << "Touchpad 2: " <<
-      touchPad2Xpos << " " <<
-      touchPad2Ypos << " " << std::endl;
+//      std::cout << "Touchpad 2: " <<
+//      touchPad2Xpos << " " <<
+//      touchPad2Ypos << " " << std::endl;
     }
 
     return 0;
