@@ -6,7 +6,7 @@ Deze keer had ik mijzelf voorgenomen om het concept vooraf duidelijker uit te we
 ## Proces
 In het begin was het even moeilijk om een goed concept te bedenken. Als we dit eerder hadden bedacht hadden we meer tijd gehad voor ons project wat fijn geweest zou zijn. Op het einde was het namelijk nog wel even stressen om een minimal viable product te maken. Vaak waren er ook kleine dingetjes die tegen zaten maar die wel erg veel tijd hebben gekost (zoals OSC versturen of problemen met JACK). 
 
-### Samenwerking
+## Samenwerking
 De samenwerking is goed verlopen. Er was ook overeenstemming over het concept en we hadden wel een beetje dezelfde ideeën over wat voor effecten we vet vonden. Ook heb ik veel geleerd over het samenwerken in Git. Ik was eerst wel een beetje huiverig over tegelijk aan dezelfde bestanden werken maar uiteindelijk vond ik Git erg fijn werken.
 
 ## Eindoplevering
